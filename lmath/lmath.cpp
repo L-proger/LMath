@@ -1,5 +1,5 @@
 #include "lm_vector_intrin.h"
-#include "lm_matrix.h"
+#include "lm_matrix_intrin.h"
 
 using namespace lm;
 
@@ -56,11 +56,49 @@ int main() {
 	auto dlen = lm::length(dup);
 
 
-	lm::Matrix<float, 4, 4> mat;
+	float4x4 mat;
 	mat.rows[0] = float4(1, 0, 0, 1);
 	mat.rows[3] = float4(3);
 	auto col0 = mat.get_column(0);
 
+
+	auto mat33 = (float3x3)mat;
+	auto mat44 = (float4x4)mat;
+
+	auto mat33_2 = (float3x3)mat;
+
+	auto is_mat1 = lm::matrix_traits::is_matrix<float4x4>::value;
+	auto is_mat2 = lm::matrix_traits::is_matrix<float4>::value;
+
+	auto mmul1 = lm::matrix_traits::can_multiply<float3x3, float3x3>::value;
+	auto mmul2 = lm::matrix_traits::can_multiply<float3x3, float3x4>::value;
+	auto mmul3 = lm::matrix_traits::can_multiply<float3x3, float4x3>::value;
+
+	auto mul_r1 = lm::mul(mat33, mat33_2);
+
+
+	auto is_identity_constexpr_4x4 = noexcept(float4x4::identity());
+	auto is_identity_constexpr_3x3 = noexcept(float3x3::identity());
+	auto id0 = float4x4::identity();
+	auto id1 = float3x3::identity();
+	auto id2 = float2x2::identity();
+
+
+	typedef Matrix<double, 5, 5> double5x5;
+	auto is_identity_constexpr_5x5 = noexcept(double5x5::identity());
+	auto id3 = double5x5::identity();
+
+	auto rc = double5x5::rows_count;
+
+	auto mul_r = lm::mul(float3x4(1), float4x3(1));
+
+	auto mul_r2 = lm::mul(float3x3::identity(), float3x3::identity());
+
+	auto mul_r3 = lm::mul(
+		float2x3(float3(1,3,2), float3(0,4,-1)), 
+		float3x4(float4(2,0,-1,1), float4(3, -2, 1, 2), float4(0, 1, 2, 3)));
+
+	auto is_square1 = lm::matrix_traits::is_square<double5x5>::value;
 	return 0;
 }
 

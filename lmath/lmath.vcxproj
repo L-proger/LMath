@@ -154,6 +154,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lm_matrix.h" />
+    <ClInclude Include="lm_matrix_intrin.h" />
+    <ClInclude Include="lm_matrix_traits.h" />
     <ClInclude Include="lm_vector.h" />
     <ClInclude Include="lm_vector_intrin.h" />
     <ClInclude Include="lm_vector_traits.h" />
