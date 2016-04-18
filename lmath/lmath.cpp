@@ -99,6 +99,13 @@ int main() {
 		float3x4(float4(2,0,-1,1), float4(3, -2, 1, 2), float4(0, 1, 2, 3)));
 
 	auto is_square1 = lm::matrix_traits::is_square<double5x5>::value;
+
+
+	auto pow_1 = lm::pow(float4(1, 2, 3, 4), 2.0f);
+	auto abs_1 = lm::abs(float4(1, -2, 3, -4));
+	auto acos_1 = lm::acos(float4(1, 0, -1, -0.75f));
+	auto asin_1 = lm::asin(float4(1, 0, -1, -0.75f));
+	auto atan_1 = lm::atan(float4(1, 0, -1, -0.75f));
 	return 0;
 }
 
