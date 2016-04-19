@@ -11,20 +11,22 @@ namespace lm {
 	};
 	template<typename T, size_t RowsCount, size_t ColumnsCount>
 	struct Matrix_data {
-		static constexpr size_t rows_count = RowsCount;
-		static constexpr size_t columns_count = ColumnsCount;
+		typedef size_t size_type;
+		static constexpr size_type rows_count = RowsCount;
+		static constexpr size_type columns_count = ColumnsCount;
+		static constexpr size_type size = rows_count * columns_count;
 		typedef Vector<T, ColumnsCount> row_type;
 		typedef Vector<T, RowsCount> column_type;
 		typedef T element_type;
 
 		Matrix_data() {
-			for(size_t i= 0; i < (RowsCount * ColumnsCount); ++i){
+			for(size_type i= 0; i < (RowsCount * ColumnsCount); ++i){
 				data[i] = (T)0;
 			}
 		}
 
 		Matrix_data(element_type value) {
-			for (size_t i = 0; i < (RowsCount * ColumnsCount); ++i) {
+			for (size_type i = 0; i < (RowsCount * ColumnsCount); ++i) {
 				data[i] = value;
 			}
 		}

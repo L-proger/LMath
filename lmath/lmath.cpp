@@ -1,5 +1,6 @@
 #include "lm_vector_intrin.h"
 #include "lm_matrix_intrin.h"
+#include "lm_common_intrin.h"
 
 using namespace lm;
 
@@ -106,6 +107,48 @@ int main() {
 	auto acos_1 = lm::acos(float4(1, 0, -1, -0.75f));
 	auto asin_1 = lm::asin(float4(1, 0, -1, -0.75f));
 	auto atan_1 = lm::atan(float4(1, 0, -1, -0.75f));
+
+	auto all_1 = lm::all(float4(0, 0, 0, 0));
+	auto all_2 = lm::all(float4(0, 0, 0, 1));
+	auto all_3 = lm::all(float4(0, 0, 1, 1));
+	auto all_4 = lm::all(float4(0, 1, 1, 1));
+	auto all_5 = lm::all(float4(1, 1, 1, 1));
+
+	auto any_1 = lm::any(float4(0, 0, 0, 0));
+	auto any_2 = lm::any(float4(0, 0, 0, 1));
+	auto any_3 = lm::any(float4(0, 0, 1, 1));
+	auto any_4 = lm::any(float4(0, 1, 1, 1));
+	auto any_5 = lm::any(float4(1, 1, 1, 1));
+
+	auto asdouble_0 = lm::asdouble(123, 456);
+	auto asdouble_1 = lm::asdouble(Vector<uint32_t, 2>(2,2), Vector<uint32_t, 2>(300, 400));
+	
+
+	float4 test_vector = float4(3.3f, 4.4f, 5.5f, 6.6f);
+	float3x3 test_matrix = float3x3(float3(1.1f, 2.2f, 3.3f), float3(4.4f, 5.5f, 6.6f), float3(7.7f, 8.8f, 9.9f));
+
+	auto ceil_1 = lm::ceil(test_vector);
+	auto ceil_2 = lm::ceil(test_matrix);
+
+	auto clamp_1 = lm::clamp(test_vector, 1.0f, 2.0f);
+	auto clamp_2 = lm::clamp(test_matrix, 0.0f, 7.0f);
+
+	auto cos_1 = lm::cos(test_vector);
+	auto cos_2 = lm::cos(test_matrix);
+
+	auto cosh_1 = lm::cosh(test_vector);
+	auto cosh_2 = lm::cosh(test_matrix);
+
+	auto cross_1 = lm::cross(float3(0, 0, 1), float3(1, 0, 0));
+	auto cross_2 = lm::cross(float3(0, 1, 0), float3(0, 0, 1));
+	auto cross_3 = lm::cross(float3(0, 0, 1), float3(0, 1, 0));
+
+	auto degrees_0 = lm::degrees(float3((float)LM_PI / 2.0f, (float)LM_PI / 1.0f, (float)LM_PI / 4.0f));
+
+	auto det_1 = lm::determinant(float2x2(float2(1, 2), float2(-1, 3)));
+
+	auto det_2 = lm::determinant(float3x3::identity());
+
 	return 0;
 }
 

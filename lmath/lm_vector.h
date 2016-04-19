@@ -19,7 +19,9 @@ namespace lm {
 	template<typename T, size_t Size>
 	struct Vector : public Vector_base, public Vector_data<T, Size> {
 	public:
-		static constexpr size_t size = Size;
+		typedef size_t size_type;
+		static constexpr size_type size = Size;
+		
 		typedef T element_type;
 
 		constexpr Vector() {
@@ -235,8 +237,10 @@ namespace lm {
 		};
 	};
 
+	typedef Vector<float, 2> float2;
 	typedef Vector<float, 3> float3;
 	typedef Vector<float, 4> float4;
+	typedef Vector<double, 2> double2;
 	typedef Vector<double, 3> double3;
 	typedef Vector<double, 4> double4;
 }
