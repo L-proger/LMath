@@ -149,6 +149,21 @@ int main() {
 
 	auto det_2 = lm::determinant(float3x3::identity());
 
+	auto dist_1 = lm::distance(float3::up(), float3::zero());
+
+	auto norm_2 = lm::normalize(float3(1, 2, 4));
+
+	auto p1 = float3::up() / lm::length(float3::up());
+
+
+
+	auto dot_1 = lm::dot(float3::up(), float3::right());
+	auto dot_2 = lm::dot(float3::up(), float3::up());
+	auto dot_3 = lm::dot(float3::up(), lm::normalize(float3::up() + float3::right()));
+
+	auto deg_1 = lm::degrees(std::acos(dot_1));
+	auto deg_2 = lm::degrees(std::acos(dot_2));
+	auto deg_3 = lm::degrees(std::acos(dot_3));
 	return 0;
 }
 

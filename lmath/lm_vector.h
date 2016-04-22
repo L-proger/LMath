@@ -61,9 +61,14 @@ namespace lm {
 			return Vector(0, 0, 1);
 		}
 
+		template<typename = std::enable_if<Size == 3>::type>
+		static constexpr Vector zero() {
+			return Vector(0, 0, 0);
+		}
+
 		//op add
 		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator+(T value) {
+		auto operator+(T value) const {
 			Vector<vector_traits::field_add_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] + value;
@@ -72,7 +77,7 @@ namespace lm {
 		}
 
 		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator+(const T& value) {
+		auto operator+(const T& value) const {
 			Vector<vector_traits::field_add_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] + value.data[i];
@@ -83,7 +88,7 @@ namespace lm {
 
 		//op sub
 		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator-(T value) {
+		auto operator-(T value) const {
 			Vector<vector_traits::field_sub_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] - value;
@@ -92,7 +97,7 @@ namespace lm {
 		}
 
 		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator-(const T& value) {
+		auto operator-(const T& value) const {
 			Vector<vector_traits::field_sub_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] - value.data[i];
@@ -102,7 +107,7 @@ namespace lm {
 
 		//op mul
 		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator*(T value) {
+		auto operator*(T value) const {
 			Vector<vector_traits::field_mul_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] * value;
@@ -111,7 +116,7 @@ namespace lm {
 		}
 
 		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator *(const T& value) {
+		auto operator *(const T& value) const {
 			Vector<vector_traits::field_mul_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] * value.data[i];
@@ -121,7 +126,7 @@ namespace lm {
 
 		//op div
 		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator/(T value) {
+		auto operator/(T value) const {
 			Vector<vector_traits::field_div_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] / value;
@@ -130,7 +135,7 @@ namespace lm {
 		}
 
 		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator /(const T& value) {
+		auto operator /(const T& value) const {
 			Vector<vector_traits::field_div_t<Vector, T>, Size> result;
 			for (size_t i = 0; i < Size; ++i) {
 				result.data[i] = data[i] / value.data[i];

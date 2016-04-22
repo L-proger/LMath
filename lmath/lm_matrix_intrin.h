@@ -22,15 +22,6 @@ namespace lm {
 		return result;
 	}
 
-	template<typename T, typename OpUnary, typename TResult = std::remove_cv<T>::type, typename = std::enable_if<matrix_traits::is_matrix<T>::value>::type>
-	TResult transform_matrix_copy(T& v, OpUnary op) {
-		TResult result;
-		for (size_t i = 0; i < T::size; ++i) {
-			result.data[i] = op(v.data[i]);
-		}
-		return result;
-	}
-
 	template<typename T, typename = std::enable_if<matrix_traits::is_square<T>::value && (T::rows_count == 3)>::type>
 	auto determinant(const T& src) {
 		return  (src.data_2d[0][0] * src.data_2d[1][1] * src.data_2d[2][2] +
