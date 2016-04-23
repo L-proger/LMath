@@ -1,13 +1,133 @@
 #include "lm_vector_intrin.h"
 #include "lm_matrix_intrin.h"
 #include "lm_common_intrin.h"
+#include <iostream>
 
+using namespace concurrency;
 using namespace lm;
 
-int main() {
-	static constexpr float3 f3 = float3::up();
+static void test_float2() restrict(cpu, amp) {
+	float2 t = lm::float2(1, 2);
+	float2 t1 = t * 2;
+	t1 = t1 / 8;
+	t1 = t1 + 3;
+	t1 = t1 - 2;
 
-	static constexpr float4 f4 = float4(1, 0, 0, 1);
+	float2 t2 = float2(10);
+	float2 t3 = t1 + t2;
+	t3 = t1 - t2;
+	t3 = t1 * t2;
+	t3 = t1 / t2;
+}
+
+static void test_float3() restrict(cpu, amp) {
+	typedef float3 test_vector_t;
+	test_vector_t c0 = test_vector_t();
+	test_vector_t c1 = test_vector_t(1);
+	test_vector_t c2 = test_vector_t(1,2,3);
+
+	test_vector_t t = test_vector_t(1, 2, 3);
+	test_vector_t t1 = t * 2;
+	t1 = t1 / 8;
+	t1 = t1 + 3;
+	t1 = t1 - 2;
+
+	test_vector_t t2 = test_vector_t::up();
+	t2 = test_vector_t::right();
+	t2 = test_vector_t::forward();
+	t2 = test_vector_t(10);
+
+	test_vector_t t3 = t1 + t2;
+	t3 = t1 - t2;
+	t3 = t1 * t2;
+	t3 = t1 / t2;
+
+
+}
+
+static void test_float4() restrict(cpu, amp) {
+	typedef float4 test_vector_t;
+	test_vector_t c0 = test_vector_t();
+	test_vector_t c1 = test_vector_t(1);
+	test_vector_t c2 = test_vector_t(1, 2, 3, 4);
+
+	test_vector_t t = test_vector_t(1, 2, 3, 4);
+	test_vector_t t1 = t * 2;
+	t1 = t1 / 8;
+	t1 = t1 + 3;
+	t1 = t1 - 2;
+
+	test_vector_t t2 = test_vector_t(10);
+
+	test_vector_t t3 = t1 + t2;
+	t3 = t1 - t2;
+	t3 = t1 * t2;
+	t3 = t1 / t2;
+}
+
+int main() {
+
+	std::vector<lm::float3> amp_vector = { float3(1),float3(2),float3(3) };
+	std::vector<lm::float3> amp_result_vector(amp_vector.size());
+	array_view<lm::float3, 1> arr(amp_vector);
+	array_view<lm::float3, 1> arr_result(amp_result_vector);
+	arr_result.discard_data();
+
+	//AMP test
+	parallel_for_each(arr.extent, [=](index<1> idx) restrict(amp) {
+		/*test_float2();
+		test_float3();
+		test_float4();*/
+		float3 t3(1);
+		auto len_1 = lm::length_sq(t3);
+		auto len_2 = lm::length(t3);
+
+		auto norm_1 = lm::normalize(t3);
+
+		auto dist_1 = lm::distance(t3, norm_1);
+
+		auto dot_1 = lm::dot(t3, t3);
+		auto cross_1 = lm::cross(float3::up(), float3::right());
+		t3.gb.r = 1.0f;
+		arr_result[idx] = lm::normalize(t3) + 2;
+	});
+
+	arr_result.synchronize(access_type_auto);
+	
+	auto val = std::is_same<float, typename float3::element_type>::value;
+
+	static_assert(sizeof(float2) == sizeof(float) * 2, "Float2 size incorrect");
+	static_assert(sizeof(double2) == sizeof(double) * 2, "double2 size incorrect");
+
+	static_assert(sizeof(float3) == sizeof(float) * 3, "Float2 size incorrect");
+	static_assert(sizeof(double3) == sizeof(double) * 3, "double3 size incorrect");
+
+	static_assert(sizeof(float4) == sizeof(float) * 4, "Float4 size incorrect");
+	static_assert(sizeof(double4) == sizeof(double) * 4, "double4 size incorrect");
+
+	//CPU test
+	test_float2();
+	test_float3();
+	test_float4();
+
+	float3 t3(1);
+	auto len_1 = lm::length_sq(t3);
+	auto len_2 = lm::length(t3);
+	auto norm_1 = lm::normalize(t3);
+	auto dist_1 = lm::distance(t3, norm_1);
+	auto dot_1 = lm::dot(lm::normalize(t3), lm::normalize(t3));
+
+	t3.gb.r = 1.0f;
+
+	auto cross_1 = lm::cross(float3::up(), float3::right());
+	std::cin.get();
+
+
+	//static_assert(noexcept(Test_amp()), "Not constexpr (");
+	
+//	static constexpr float3 f3 = float3::up();
+
+/*	static constexpr float4 f4 = float4(1, 0, 0, 1);
 
 	static constexpr float4 f4_value = float4(1);
 
@@ -164,6 +284,10 @@ int main() {
 	auto deg_1 = lm::degrees(std::acos(dot_1));
 	auto deg_2 = lm::degrees(std::acos(dot_2));
 	auto deg_3 = lm::degrees(std::acos(dot_3));
+
+
+	*/
+
 	return 0;
 }
 

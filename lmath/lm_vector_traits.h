@@ -50,17 +50,5 @@ namespace vector_traits {
 	struct is_same_extent<T1, T2, false> {
 		static constexpr bool value = false;
 	};
-
-	template<typename T1, typename T2 = T1>
-	using field_add_t = decltype(std::declval<field_type<T1>::type>() + std::declval<field_type<T2>::type>());
-
-	template<typename T1, typename T2 = T1>
-	using field_sub_t = decltype(std::declval<field_type<T1>::type>() - std::declval<field_type<T2>::type>());
-
-	template<typename T1, typename T2 = T1>
-	using field_mul_t = decltype(std::declval<field_type<T1>::type>() * std::declval<field_type<T2>::type>());
-
-	template<typename T1, typename T2 = T1>
-	using field_div_t = decltype(std::declval<field_type<T1>::type>() / std::declval<field_type<T2>::type>());
 }
 #endif // lm_vector_traits_h__
