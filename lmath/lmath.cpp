@@ -110,7 +110,7 @@ int main() {
 		mat.rows[3] = float4(3);
 		auto col0 = mat.get_column(0);
 
-
+		auto floor_1 = lm::floor(float4(3.3f, 4.4f, 5.5f, 6.6f));
 		auto mat33 = (float3x3)mat;
 		auto mat44 = (float4x4)mat;
 
@@ -164,7 +164,7 @@ int main() {
 		auto any_5 = lm::any(float4(1, 1, 1, 1));
 
 
-
+		auto floor_2 = lm::floor(float4(3.3f, 4.4f, 5.5f, 6.6f));
 
 		float4 test_vector = float4(3.3f, 4.4f, 5.5f, 6.6f);
 		float3x3 test_matrix = float3x3(float3(1.1f, 2.2f, 3.3f), float3(4.4f, 5.5f, 6.6f), float3(7.7f, 8.8f, 9.9f));

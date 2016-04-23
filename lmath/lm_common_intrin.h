@@ -39,32 +39,28 @@ namespace lm {
 
 
 	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
-	auto floor(const T& v) RESTRICT(cpu, amp) {
+	auto floor(const T& v) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](auto x) {return std::floor(x); });
 	}
+	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
+	auto floor(const T& v) RESTRICT(amp) {
+		return transform_copy_helper<T>::execute(v, [](auto x) {return concurrency::precise_math::floor(x); });
+	}
+
+
 
 	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
 	auto clamp(const T& v, typename T::element_type min_value, typename T::element_type max_value) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [min_value, max_value](auto x) {return (std::min)(max_value, (std::max)(x, min_value)); });
 	}
-	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
-	auto clamp(const T& v, typename T::element_type min_value, typename T::element_type max_value) RESTRICT(amp) {
-		return transform_copy_helper<T>::execute(v, [min_value, max_value](auto x) {return x > max_value ? max_value : (x < min_value ? min_value : x); });
-	}
-
-
+	
 	template<typename T> auto pow(const T& v, typename T::element_type arg) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [arg](T::element_type e)RESTRICT(cpu) { return std::pow(e, arg); });
 	}
 
-	
-
 	template<typename T> auto abs(const T& v) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::abs(e); });
 	}
-
-	
-
 
 	template<typename T> auto acos(const T& v) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::acos(e); });
@@ -73,8 +69,6 @@ namespace lm {
 	template<typename T> auto asin(const T& v)RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::asin(e); });
 	}
-
-	
 
 	template<typename T> auto atan(const T& v) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::atan(e); });
@@ -111,6 +105,10 @@ namespace lm {
 	}
 
 #if defined(LM_AMP_SUPPORTED)
+	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
+	auto clamp(const T& v, typename T::element_type min_value, typename T::element_type max_value) RESTRICT(amp) {
+		return transform_copy_helper<T>::execute(v, [min_value, max_value](auto x) {return x > max_value ? max_value : (x < min_value ? min_value : x); });
+	}
 	template<typename T> auto asin(const T& v)RESTRICT(amp) {
 		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return concurrency::precise_math::asin(e); });
 	}

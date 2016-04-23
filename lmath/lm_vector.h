@@ -21,45 +21,20 @@ namespace lm {
 	struct Vector : public Vector_base, public Vector_data<T, Size> {
 	public:
 		static constexpr lm_size_type size = Size;
-		
 		typedef T element_type;
 
-		constexpr Vector() RESTRICT(cpu) {
-		}
+		constexpr Vector() RESTRICT(cpu) {}
 
-	
-
-		constexpr Vector(T value) RESTRICT(cpu) : Vector_data<T, Size>(value) {
-
-		}
-
-	
+		constexpr Vector(T value) RESTRICT(cpu) : Vector_data<T, Size>(value) {}
 
 		template<typename = std::enable_if<Size == 2>::type>
-		constexpr Vector(T x, T y) RESTRICT(cpu) : Vector_data<T, Size>(x, y) {
-
-		}
+		constexpr Vector(T x, T y) RESTRICT(cpu) : Vector_data<T, Size>(x, y) {}
 
 		template<typename = std::enable_if<Size == 3>::type>
-		constexpr Vector(T x, T y, T z) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z)  {
-
-		}
-
-		template<typename = std::enable_if<Size == 3>::type>
-		Vector(T x, T y, T z) RESTRICT(amp) : Vector_data<T, Size>(x, y, z) {
-
-		}
+		constexpr Vector(T x, T y, T z) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z) {}
 
 		template<typename = std::enable_if<Size == 4>::type>
-		constexpr Vector(T x, T y, T z, T w) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z, w) {
-
-		}
-
-
-		template<typename = std::enable_if<Size == 4>::type>
-		Vector(T x, T y, T z, T w) RESTRICT(amp) : Vector_data<T, Size>(x, y, z, w)  {
-
-		}
+		constexpr Vector(T x, T y, T z, T w) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z, w) {}
 
 		template<typename = std::enable_if<Size == 3>::type>
 		static constexpr Vector right() RESTRICT(cpu) {
@@ -98,17 +73,18 @@ namespace lm {
 
 
 #if defined(LM_AMP_SUPPORTED)
-		Vector() RESTRICT(amp) {
-		}
+		Vector() RESTRICT(amp) {}
 
-		Vector(T value) RESTRICT(amp) : Vector_data<T, Size>(value) {
-
-		}
+		Vector(T x) RESTRICT(amp) : Vector_data<T, Size>(x) {}
 
 		template<typename = std::enable_if<Size == 2>::type>
-		Vector(T x, T y) RESTRICT(amp) : Vector_data<T, Size>(x, y) {
+		Vector(T x, T y) RESTRICT(amp) : Vector_data<T, Size>(x, y) {}
 
-		}
+		template<typename = std::enable_if<Size == 3>::type>
+		Vector(T x, T y, T z) RESTRICT(amp) : Vector_data<T, Size>(x, y, z) {}
+
+		template<typename = std::enable_if<Size == 4>::type>
+		Vector(T x, T y, T z, T w) RESTRICT(amp) : Vector_data<T, Size>(x, y, z, w) {}
 
 		template<typename = std::enable_if<Size == 3>::type>
 		static Vector up() RESTRICT(amp) {
@@ -119,6 +95,7 @@ namespace lm {
 		static Vector forward()RESTRICT(amp) {
 			return Vector(0, 0, 1);
 		}
+
 		template<typename = std::enable_if<Size == 3>::type>
 		static Vector right() RESTRICT(amp) {
 			return Vector(1, 0, 0);
@@ -279,20 +256,24 @@ namespace lm {
 	struct Vector_data<T, 4> {
 		constexpr Vector_data() RESTRICT(cpu) : data{ 0,0,0,0 } {}
 		constexpr Vector_data(T value) RESTRICT(cpu) : data { value, value, value, value } {}
-		constexpr Vector_data(T _x, T _y, T _z, T _w)RESTRICT(cpu) : data{ _x, _y, _z, _w } {}
+		constexpr Vector_data(T _x, T _y, T _z, T _w) RESTRICT(cpu) : data{ _x, _y, _z, _w } {}
 
 #if defined(LM_AMP_SUPPORTED)
 		Vector_data() RESTRICT(amp) : data{ 0,0,0,0 } {}
 		Vector_data(T value) RESTRICT(amp) : data{ value,value,value,value } {}
-		Vector_data(T _x, T _y, T _z, T _w)RESTRICT(amp) : data{ _x, _y, _z, _w } {}
+		Vector_data(T _x, T _y, T _z, T _w) RESTRICT(amp) : data{ _x, _y, _z, _w } {}
 #endif
 		union {
 			T data[4];
+			Vector<T, 3> rgb;
+			Vector<T, 3> rg;
 			Vector<T, 3> xyz;
 			Vector<T, 2> xy;
+			T r;
 			struct {
 				T x;
 				union {
+					T g;
 					struct {
 						T y;
 						union {
@@ -300,9 +281,16 @@ namespace lm {
 								T z;
 								T w;
 							};
+							struct {
+								T b;
+								T a;
+							};
 							Vector<T, 2> zw;
+							Vector<T, 2> ba;
 						};
 					};
+					Vector<T, 2> gb;
+					Vector<T, 3> gba;
 					Vector<T, 2> yz;
 					Vector<T, 3> yzw;
 				};
