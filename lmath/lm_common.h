@@ -28,12 +28,19 @@ namespace lm{
 	}
 
 	template<typename T, bool IsScalar = !common_traits::is_lm_type<T>::value>
-	struct transform_copy_helper
-	{
+	struct transform_copy_helper {
 		template<typename OpUnary>
-		static auto execute(const T& v, OpUnary op) {
+		static auto execute(const T& v, OpUnary op)RESTRICT(cpu) {
 			std::remove_cv<T>::type result;
-			for (size_t i = 0; i < T::size; ++i) {
+			for (lm_size_type i = 0; i < T::size; ++i) {
+				result.data[i] = op(v.data[i]);
+			}
+			return result;
+		}
+		template<typename OpUnary>
+		static auto execute(const T& v, OpUnary op)RESTRICT(amp) {
+			std::remove_cv<T>::type result;
+			for (lm_size_type i = 0; i < T::size; ++i) {
 				result.data[i] = op(v.data[i]);
 			}
 			return result;
@@ -44,7 +51,11 @@ namespace lm{
 	template<typename T>
 	struct transform_copy_helper<T, true> {
 		template<typename OpUnary>
-		static auto execute(const T& v, OpUnary op) {
+		static auto execute(const T& v, OpUnary op) RESTRICT(cpu) {
+			return op(v);
+		}
+		template<typename OpUnary>
+		static auto execute(const T& v, OpUnary op) RESTRICT(amp) {
 			return op(v);
 		}
 	};

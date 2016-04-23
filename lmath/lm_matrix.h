@@ -12,7 +12,7 @@ namespace lm {
 
 	};
 
-	template<typename T, size_t RowsCount, size_t ColumnsCount>
+	template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
 	struct Matrix_data {
 		static constexpr lm_size_type rows_count = RowsCount;
 		static constexpr lm_size_type columns_count = ColumnsCount;
@@ -68,7 +68,7 @@ namespace lm {
 
 #include "lm_matrix_traits.h"
 
-	template<typename T, size_t RowsCount, size_t ColumnsCount>
+	template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
 	struct Matrix : public Matrix_base, public Matrix_data<T, RowsCount, ColumnsCount> {
 
 		template<typename = std::enable_if<rows_count == 1>::type>
@@ -139,13 +139,13 @@ namespace lm {
 		template<typename U = Matrix>
 		static U identity(typename std::enable_if<(matrix_traits::is_square<U>::value && ((U::rows_count < 2) || (U::rows_count > 4)))>::type* = 0) RESTRICT(cpu, amp){
 			U result;
-			for(size_t y = 0; y < U::rows_count; ++y) {
+			for(lm_size_type y = 0; y < U::rows_count; ++y) {
 				result.data_2d[y][y] = (U::element_type)1;
 			}
 			return result;
 		}
 
-		column_type get_column(size_t id)  const RESTRICT(cpu, amp) {
+		column_type get_column(lm_size_type id) const RESTRICT(cpu, amp) {
 			column_type result;
 			for(lm_size_type y = 0; y < rows_count; ++y) {
 				result.data[y] = data_2d[y][id];
@@ -153,12 +153,12 @@ namespace lm {
 			return result;
 		}
 
-		template<size_t ResulRowsCount, size_t ResulColumnsCount, typename = std::enable_if<(rows_count >= ResulRowsCount) && (columns_count >= ResulColumnsCount)>::type>
+		template<lm_size_type ResulRowsCount, lm_size_type ResulColumnsCount, typename = std::enable_if<(rows_count >= ResulRowsCount) && (columns_count >= ResulColumnsCount)>::type>
 		operator Matrix<T, ResulRowsCount, ResulColumnsCount>() const RESTRICT(cpu, amp) {
 			Matrix<T, ResulRowsCount, ResulColumnsCount> result;
-			for(size_t y = 0; y <ResulRowsCount; ++y)
+			for(lm_size_type y = 0; y <ResulRowsCount; ++y)
 			{
-				for (size_t x = 0; x < ResulColumnsCount; ++x) {
+				for (lm_size_type x = 0; x < ResulColumnsCount; ++x) {
 					result.data_2d[y][x] = data_2d[y][x];
 				}
 			}

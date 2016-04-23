@@ -10,7 +10,7 @@ namespace lm {
 
 	};
 
-	template<typename T, size_t Size>
+	template<typename T, lm_size_type Size>
 	struct Vector_data {
 		T data[Size];
 	};
