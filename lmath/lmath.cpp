@@ -41,8 +41,6 @@ static void test_float3() restrict(cpu, amp) {
 	t3 = t1 - t2;
 	t3 = t1 * t2;
 	t3 = t1 / t2;
-
-
 }
 
 static void test_float4() restrict(cpu, amp) {
@@ -78,6 +76,14 @@ int main() {
 		/*test_float2();
 		test_float3();
 		test_float4();*/
+
+		float3x3 m1;
+		auto col1 = m1.get_column(0);
+		auto m2 = float3x3::identity();
+		auto m3 = float4x4::identity();
+		auto m4 = lm::mul(m1, m2);
+		auto det1 = lm::determinant(m4);
+
 		float3 t3(1);
 		auto len_1 = lm::length_sq(t3);
 		auto len_2 = lm::length(t3);
@@ -109,6 +115,13 @@ int main() {
 	test_float2();
 	test_float3();
 	test_float4();
+
+	float3x3 m1;
+	auto col1 = m1.get_column(0);
+	auto m2 = float3x3::identity();
+	auto m3 = float4x4::identity();
+	auto m4 = lm::mul(m1, m2);
+	auto det1 = lm::determinant(m4);
 
 	float3 t3(1);
 	auto len_1 = lm::length_sq(t3);
