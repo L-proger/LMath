@@ -33,16 +33,16 @@ namespace lm {
 			}
 		}
 
-		template<typename = std::enable_if<rows_count == 1>::type>
+		template<typename = typename std::enable_if<rows_count == 1>::type>
 		constexpr Matrix_data(row_type r0) RESTRICT(cpu) : rows{ r0} {}
 
-		template<typename = std::enable_if<rows_count == 2>::type>
+		template<typename = typename std::enable_if<rows_count == 2>::type>
 		constexpr Matrix_data(row_type r0, row_type r1) RESTRICT(cpu) : rows{ r0,r1} {}
 
-		template<typename = std::enable_if<rows_count == 3>::type>
+		template<typename = typename std::enable_if<rows_count == 3>::type>
 		constexpr Matrix_data(row_type r0, row_type r1, row_type r2) RESTRICT(cpu) : rows{ r0,r1,r2} {}
 
-		template<typename = std::enable_if<rows_count == 4>::type>
+		template<typename = typename std::enable_if<rows_count == 4>::type>
 		constexpr Matrix_data(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(cpu) : rows{ r0,r1,r2,r3 } {}
 
 #if defined(LM_AMP_SUPPORTED)
@@ -140,7 +140,7 @@ namespace lm {
 		static U identity(typename std::enable_if<(matrix_traits::is_square<U>::value && ((U::rows_count < 2) || (U::rows_count > 4)))>::type* = 0) RESTRICT(cpu, amp){
 			U result;
 			for(lm_size_type y = 0; y < U::rows_count; ++y) {
-				result.data_2d[y][y] = (U::element_type)1;
+				result.data_2d[y][y] = (typename U::element_type)1;
 			}
 			return result;
 		}

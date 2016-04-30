@@ -1,6 +1,4 @@
-#include "lm_vector_intrin.h"
-#include "lm_matrix_intrin.h"
-#include "lm_common_intrin.h"
+#include "lm.h"
 #include <iostream>
 
 using namespace concurrency;

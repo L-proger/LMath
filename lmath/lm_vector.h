@@ -1,21 +1,16 @@
 #ifndef lm_vector_h__
 #define lm_vector_h__
 
+#include "lm_vector_traits.h"
 #include <type_traits>
 #include <array>
 #include "lm_types.h"
 
 namespace lm {
-	struct Vector_base {
-
-	};
-
 	template<typename T, lm_size_type Size>
 	struct Vector_data {
 		T data[Size];
 	};
-
-#include "lm_vector_traits.h"
 
 	template<typename T, lm_size_type Size>
 	struct Vector : public Vector_base, public Vector_data<T, Size> {
@@ -27,26 +22,26 @@ namespace lm {
 
 		constexpr Vector(T value) RESTRICT(cpu) : Vector_data<T, Size>(value) {}
 
-		template<typename = std::enable_if<Size == 2>::type>
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 2>::type>
 		constexpr Vector(T x, T y) RESTRICT(cpu) : Vector_data<T, Size>(x, y) {}
 
-		template<typename = std::enable_if<Size == 3>::type>
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 3>::type>
 		constexpr Vector(T x, T y, T z) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z) {}
 
-		template<typename = std::enable_if<Size == 4>::type>
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
 		constexpr Vector(T x, T y, T z, T w) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z, w) {}
 
-		template<typename = std::enable_if<Size == 3>::type>
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 3>::type>
 		static constexpr Vector right() RESTRICT(cpu) {
 			return Vector(1, 0, 0);
 		}
 
-		template<typename = std::enable_if<Size == 3>::type>
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 3>::type>
 		static constexpr Vector up()RESTRICT(cpu) {
 			return Vector(0, 1, 0);
 		}
 
-		template<typename = std::enable_if<Size == 3>::type>
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 3>::type>
 		static constexpr Vector forward()RESTRICT(cpu) {
 			return Vector(0, 0, 1);
 		}
@@ -60,17 +55,6 @@ namespace lm {
 		static constexpr Vector zero(typename std::enable_if<U::size == 2>::type* p = nullptr) RESTRICT(cpu) {
 			return Vector(0, 0);
 		}
-
-		template<typename U = Vector>
-		static Vector zero(typename std::enable_if<U::size == 3>::type* p = nullptr) RESTRICT(amp) {
-			return Vector(0, 0, 0);
-		}
-
-		template<typename U = Vector>
-		static Vector zero(typename std::enable_if<U::size == 2>::type* p = nullptr) RESTRICT(amp) {
-			return Vector(0, 0);
-		}
-
 
 #if defined(LM_AMP_SUPPORTED)
 		Vector() RESTRICT(amp) {}
@@ -100,89 +84,98 @@ namespace lm {
 		static Vector right() RESTRICT(amp) {
 			return Vector(1, 0, 0);
 		}
+		template<typename U = Vector>
+		static Vector zero(typename std::enable_if<U::size == 3>::type* p = nullptr) RESTRICT(amp) {
+			return Vector(0, 0, 0);
+		}
+
+		template<typename U = Vector>
+		static Vector zero(typename std::enable_if<U::size == 2>::type* p = nullptr) RESTRICT(amp) {
+			return Vector(0, 0);
+		}
 #endif
 
 		//op add
-		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator+(T value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] + value), Size> result;
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		auto operator+(U value) const RESTRICT(cpu, amp) {
+			Vector<decltype(this->data[0] + value), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] + value;
+				result.data[i] = this->data[i] + value;
 			}
 			return result;
 		}
 
-		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator+(const T& value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] + value.data[0]), Size> result;
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
+		auto operator+(const U& value) const RESTRICT(cpu, amp) {
+			Vector<decltype(this->data[0] + value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] + value.data[i];
+				result.data[i] = this->data[i] + value.data[i];
 			}
 			return result;
 		}
 
 
 		//op sub
-		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator-(T value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] - value), Size> result;
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		auto operator-(U value) const RESTRICT(cpu, amp) {
+			Vector<decltype(this->data[0] - value), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] - value;
+				result.data[i] = this->data[i] - value;
 			}
 			return result;
 		}
 
-		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator-(const T& value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] - value.data[0]), Size> result;
+		/*template<typename U, typename = typename std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
+		auto operator-(const U& value) const RESTRICT(cpu, amp) {
+			Vector<decltype(this->data[0] - value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] - value.data[i];
+				result.data[i] = this->data[i] - value.data[i];
 			}
 			return result;
-		}
+		}*/
 
 		//op mul
-		template<typename T, typename = std::enable_if<!vector_traits::is_vector<T>::value>::type>
-		auto operator*(T value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] * value), Size> result;
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		auto operator*(U value) const RESTRICT(cpu, amp) {
+			Vector<decltype(this->data[0] * value), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] * value;
+				result.data[i] = this->data[i] * value;
 			}
 			return result;
 		}
 
-		template<typename T, typename = std::enable_if<vector_traits::is_same_extent<T, Vector>::value>::type>
-		auto operator *(const T& value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] * value.data[0]), Size> result;
+		/*template<typename U, typename = typename std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
+		auto operator *(const U& value) const RESTRICT(cpu, amp) {
+			Vector<decltype(this->data[0] * value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] * value.data[i];
+				result.data[i] = this->data[i] * value.data[i];
 			}
 			return result;
-		}
+		}*/
 
 		//op div
-		template<typename U, typename = std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
 		auto operator/(U value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] / value), Size> result;
+			Vector<decltype(this->data[0] / value), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] / value;
+				result.data[i] = this->data[i] / value;
 			}
 			return result;
 		}
 
-		template<typename U, typename = std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
+		/*template<typename U, typename = typename std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
 		auto operator /(const U& value) const RESTRICT(cpu, amp) {
-			Vector<decltype(data[0] / value.data[0]), Size> result;
+			Vector<decltype(this->data[0] / value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
-				result.data[i] = data[i] / value.data[i];
+				result.data[i] = this->data[i] / value.data[i];
 			}
 			return result;
 		}
-
+*/
 
 		Vector& operator=(const Vector& value) RESTRICT(cpu, amp) {
 			for (lm_size_type i = 0; i < Size; ++i) {
-				data[i] = value.data[i];
+				this->data[i] = value.data[i];
 			}
 			return *this;
 		}
@@ -202,9 +195,11 @@ namespace lm {
 		constexpr Vector_data(T _x, T _y) RESTRICT(cpu) : data{ _x, _y } {}
 		constexpr Vector_data(T value) RESTRICT(cpu) : data{ value, value } {}
 
+#if defined(LM_AMP_SUPPORTED)
 		Vector_data() RESTRICT(amp) : data{ 0,0 } {}
 		Vector_data(T _x, T _y) RESTRICT(amp) : data{ _x, _y } {}
 		Vector_data(T value) RESTRICT(amp) : data{ value,value } {}
+#endif
 
 		union {
 			T data[2];
@@ -228,10 +223,11 @@ namespace lm {
 		constexpr Vector_data() RESTRICT(cpu) : data{ 0,0,0 } {}
 		constexpr Vector_data(T _x, T _y, T _z) RESTRICT(cpu) : data{ _x, _y, _z } {}
 		constexpr Vector_data(T value) RESTRICT(cpu) : data{ value, value, value }  {}
-
+#if defined(LM_AMP_SUPPORTED)
 		Vector_data() RESTRICT(amp) : data{ 0,0,0 } {}
 		Vector_data(T _x, T _y, T _z) RESTRICT(amp) : data{ _x, _y, _z } {}
 		Vector_data(T value) RESTRICT(amp) : data{ value, value, value } {}
+		#endif
 
 		union {
 			T data[3];
@@ -244,6 +240,10 @@ namespace lm {
 					struct {
 						T y;
 						T z;
+					};
+					struct {
+						T g;
+						T b;
 					};
 					Vector<T, 2> yz;
 					Vector<T, 2> gb;

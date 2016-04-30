@@ -2,31 +2,22 @@
 #define lm_vector_traits_h__
 
 #include <type_traits>
+
+namespace lm {
+struct Vector_base {
+
+};
+
 namespace vector_traits {
 
-	template<typename T, bool IsVector = std::is_base_of<Vector_base, T>::value>
+	template<typename T>
 	struct is_vector {
-
-	};
-
-	template<typename T>
-	struct is_vector<T, true> {
-		static constexpr bool value = true;
-	};
-
-	template<typename T>
-	struct is_vector<T, false> {
-		static constexpr bool value = false;
+		static constexpr bool value = std::is_base_of<lm::Vector_base, T>::value;
 	};
 
 
 	template<typename T, bool IsVector = is_vector<T>::value>
 	struct field_type {
-
-	};
-
-	template<typename T>
-	struct field_type<T, true> {
 		typedef typename T::element_type type;
 	};
 
@@ -35,15 +26,9 @@ namespace vector_traits {
 		typedef T type;
 	};
 
-
-	template<typename T1, typename T2, bool same = is_vector<T1>::value &&  is_vector<T2>::value && (T1::size == T2::size)>
+	template<typename T1, typename T2, bool IsVectors = (is_vector<T1>::value && is_vector<T2>::value)>
 	struct is_same_extent {
-
-	};
-
-	template<typename T1, typename T2>
-	struct is_same_extent<T1, T2, true> {
-		static constexpr bool value = true;
+		static constexpr bool value = T1::size == T2::size;
 	};
 
 	template<typename T1, typename T2>
@@ -51,4 +36,6 @@ namespace vector_traits {
 		static constexpr bool value = false;
 	};
 }
+}
+
 #endif // lm_vector_traits_h__

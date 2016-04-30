@@ -59,21 +59,6 @@ namespace lm{
 			return op(v);
 		}
 	};
-
-	/*template<typename T, typename U = T, typename OpUnary, typename = std::enable_if<common_traits::is_lm_type<U>::value>::type>
-	auto transform_copy(const T& v, OpUnary op) {
-		std::remove_cv<T>::type result;
-		for (size_t i = 0; i < T::size; ++i) {
-			result.data[i] = op(v.data[i]);
-		}
-		return result;
-	}
-
-	template<typename T, typename OpUnary, typename U2 = T>
-	typename std::conditional<!common_traits::is_lm_type<U2>::value, decltype(std::declval<OpUnary>()()), void>::type transform_copy(const T& v, OpUnary op) {
-		return op(v);
-	}*/
-
 }
 
 #endif // lm_common_h__

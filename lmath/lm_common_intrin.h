@@ -30,7 +30,7 @@ namespace lm {
 
 	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
 	auto ceil(const T& v)RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](auto x) {return std::ceil(x); });
+		return transform_copy_helper<T>::execute(v, [](auto x) {return (std::ceil)(x); });
 	}
 	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
 	auto ceil(const T& v)RESTRICT(amp) {
