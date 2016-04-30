@@ -16,8 +16,6 @@ namespace lmath_test{
 			Assert::IsFalse(std::is_same<lm::vector_traits::field_type<float2>::type, double>::value, L"Float3 type test failed");
 			Assert::IsFalse(std::is_same<lm::vector_traits::field_type<double3>::type, float>::value, L"double3 type test failed");
 			Assert::IsFalse(std::is_same<lm::vector_traits::field_type<Vector<int, 4>>::type, short>::value, L"int3 type test failed");
-
-
 		}
 	};
 }

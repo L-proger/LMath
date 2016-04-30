@@ -125,14 +125,14 @@ namespace lm {
 			return result;
 		}
 
-		/*template<typename U, typename = typename std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
 		auto operator-(const U& value) const RESTRICT(cpu, amp) {
 			Vector<decltype(this->data[0] - value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
 				result.data[i] = this->data[i] - value.data[i];
 			}
 			return result;
-		}*/
+		}
 
 		//op mul
 		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
@@ -144,14 +144,14 @@ namespace lm {
 			return result;
 		}
 
-		/*template<typename U, typename = typename std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
 		auto operator *(const U& value) const RESTRICT(cpu, amp) {
 			Vector<decltype(this->data[0] * value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
 				result.data[i] = this->data[i] * value.data[i];
 			}
 			return result;
-		}*/
+		}
 
 		//op div
 		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
@@ -163,7 +163,7 @@ namespace lm {
 			return result;
 		}
 
-		/*template<typename U, typename = typename std::enable_if<vector_traits::is_same_extent<U, Vector>::value>::type>
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
 		auto operator /(const U& value) const RESTRICT(cpu, amp) {
 			Vector<decltype(this->data[0] / value.data[0]), Size> result;
 			for (lm_size_type i = 0; i < Size; ++i) {
@@ -171,7 +171,7 @@ namespace lm {
 			}
 			return result;
 		}
-*/
+
 
 		Vector& operator=(const Vector& value) RESTRICT(cpu, amp) {
 			for (lm_size_type i = 0; i < Size; ++i) {
