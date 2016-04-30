@@ -4,14 +4,10 @@
 #include "lm_vector.h"
 #include "lm_types.h"
 #include <array>
-
-//row-major matrix
+#include "lm_matrix_traits.h"
 
 namespace lm {
-	struct Matrix_base {
-
-	};
-
+//row-major matrix
 	template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
 	struct Matrix_data {
 		static constexpr lm_size_type rows_count = RowsCount;
@@ -33,16 +29,16 @@ namespace lm {
 			}
 		}
 
-		template<typename = typename std::enable_if<rows_count == 1>::type>
+		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 1>::type>
 		constexpr Matrix_data(row_type r0) RESTRICT(cpu) : rows{ r0} {}
 
-		template<typename = typename std::enable_if<rows_count == 2>::type>
+		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 2>::type>
 		constexpr Matrix_data(row_type r0, row_type r1) RESTRICT(cpu) : rows{ r0,r1} {}
 
-		template<typename = typename std::enable_if<rows_count == 3>::type>
+		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 3>::type>
 		constexpr Matrix_data(row_type r0, row_type r1, row_type r2) RESTRICT(cpu) : rows{ r0,r1,r2} {}
 
-		template<typename = typename std::enable_if<rows_count == 4>::type>
+		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 4>::type>
 		constexpr Matrix_data(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(cpu) : rows{ r0,r1,r2,r3 } {}
 
 #if defined(LM_AMP_SUPPORTED)
@@ -66,22 +62,21 @@ namespace lm {
 		};
 	};
 
-#include "lm_matrix_traits.h"
-
 	template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
 	struct Matrix : public Matrix_base, public Matrix_data<T, RowsCount, ColumnsCount> {
+		typedef Matrix_data<T, RowsCount, ColumnsCount> data_t;
 
-		template<typename = std::enable_if<rows_count == 1>::type>
-		constexpr Matrix(row_type r0) RESTRICT(cpu) : Matrix_data{ r0 } {}
+		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 1>::type>
+		constexpr Matrix(typename data_t::row_type r0) RESTRICT(cpu) : data_t{ r0 } {}
 
-		template<typename = std::enable_if<rows_count == 2>::type>
-		constexpr Matrix(row_type r0, row_type r1) RESTRICT(cpu) : Matrix_data{ r0,r1} {}
+		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 2>::type>
+		constexpr Matrix(typename data_t::row_type r0, typename data_t::row_type r1) RESTRICT(cpu) : data_t { r0,r1} {}
 
-		template<typename = std::enable_if<rows_count == 3>::type>
-		constexpr Matrix(row_type r0, row_type r1, row_type r2) RESTRICT(cpu) : Matrix_data{ r0,r1,r2 } {}
+		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 3>::type>
+		constexpr Matrix(typename data_t::row_type r0, typename data_t::row_type r1, typename data_t::row_type r2) RESTRICT(cpu) : data_t { r0,r1,r2 } {}
 
-		template<typename = std::enable_if<rows_count == 4>::type>
-		constexpr Matrix(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(cpu) : Matrix_data{ r0,r1,r2,r3 } {}
+		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 4>::type>
+		constexpr Matrix(typename data_t::row_type r0, typename data_t::row_type r1, typename data_t::row_type r2, typename data_t::row_type r3) RESTRICT(cpu) : data_t { r0,r1,r2,r3 } {}
 
 #if defined(LM_AMP_SUPPORTED)
 		template<typename = std::enable_if<rows_count == 1>::type>
@@ -95,7 +90,6 @@ namespace lm {
 
 		template<typename = std::enable_if<rows_count == 4>::type>
 		Matrix(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(amp) : Matrix_data{ r0,r1,r2,r3 } {}
-
 
 		template<typename U = Matrix>
 		static U identity(typename std::enable_if<(U::rows_count == 4) && (U::columns_count == 4)>::type* = 0) RESTRICT(amp) {
@@ -115,21 +109,21 @@ namespace lm {
 
 		Matrix() RESTRICT(amp, cpu) {}
 
-		Matrix(element_type value)  RESTRICT(amp, cpu) : Matrix_data(value){}
+		Matrix(typename data_t::element_type value) RESTRICT(amp, cpu) : data_t(value){}
 
 		template<typename U = Matrix>
 		static constexpr U identity(typename std::enable_if<(U::rows_count == 4) && (U::columns_count == 4)>::type* = 0) RESTRICT(cpu) {
-			return U(row_type(1, 0, 0, 0), row_type(0, 1, 0, 0), row_type(0, 0, 1, 0), row_type(0, 0, 0, 1));
+			return U(typename data_t::row_type(1, 0, 0, 0), typename data_t::row_type(0, 1, 0, 0), typename data_t::row_type(0, 0, 1, 0), typename data_t::row_type(0, 0, 0, 1));
 		}
 
 		template<typename U = Matrix>
 		static constexpr U identity(typename std::enable_if<(U::rows_count == 3) && (U::columns_count == 3)>::type* = 0) RESTRICT(cpu) {
-			return U(row_type(1, 0, 0), row_type(0, 1, 0), row_type(0, 0, 1));
+			return U(typename data_t::row_type(1, 0, 0), typename data_t::row_type(0, 1, 0), typename data_t::row_type(0, 0, 1));
 		}
 
 		template<typename U = Matrix>
 		static constexpr U identity(typename std::enable_if<(U::rows_count == 2) && (U::columns_count == 2)>::type* = 0)RESTRICT(cpu) {
-			return U(row_type(1, 0), row_type(0, 1));
+			return U(typename data_t::row_type(1, 0), typename data_t::row_type(0, 1));
 		}
 
 
@@ -145,21 +139,21 @@ namespace lm {
 			return result;
 		}
 
-		column_type get_column(lm_size_type id) const RESTRICT(cpu, amp) {
-			column_type result;
-			for(lm_size_type y = 0; y < rows_count; ++y) {
-				result.data[y] = data_2d[y][id];
+		auto get_column(lm_size_type id) const RESTRICT(cpu, amp) {
+			typename data_t::column_type result;
+			for(lm_size_type y = 0; y < data_t::rows_count; ++y) {
+				result.data[y] = this->data_2d[y][id];
 			}
 			return result;
 		}
 
-		template<lm_size_type ResulRowsCount, lm_size_type ResulColumnsCount, typename = std::enable_if<(rows_count >= ResulRowsCount) && (columns_count >= ResulColumnsCount)>::type>
-		operator Matrix<T, ResulRowsCount, ResulColumnsCount>() const RESTRICT(cpu, amp) {
-			Matrix<T, ResulRowsCount, ResulColumnsCount> result;
-			for(lm_size_type y = 0; y <ResulRowsCount; ++y)
+		template<lm_size_type ResultRowsCount, lm_size_type ResultColumnsCount, typename = typename std::enable_if<(data_t::rows_count >= ResultRowsCount) && (data_t::columns_count >= ResultColumnsCount)>::type>
+		operator Matrix<T, ResultRowsCount, ResultColumnsCount>() const RESTRICT(cpu, amp) {
+			Matrix<T, ResultRowsCount, ResultColumnsCount> result;
+			for(lm_size_type y = 0; y < ResultRowsCount; ++y)
 			{
-				for (lm_size_type x = 0; x < ResulColumnsCount; ++x) {
-					result.data_2d[y][x] = data_2d[y][x];
+				for (lm_size_type x = 0; x < ResultColumnsCount; ++x) {
+					result.data_2d[y][x] = this->data_2d[y][x];
 				}
 			}
 			return result;

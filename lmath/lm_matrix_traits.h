@@ -3,6 +3,10 @@
 
 #include <type_traits>
 
+namespace lm{
+struct Matrix_base {
+
+};
 namespace matrix_traits {
 
 	template<typename T, bool IsMatrix = std::is_base_of<Matrix_base, T>::value>
@@ -56,4 +60,6 @@ namespace matrix_traits {
 		static constexpr bool value = false;
 	};
 }
+}
+
 #endif // lm_matrix_traits_h__

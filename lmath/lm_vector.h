@@ -211,10 +211,6 @@ namespace lm {
 				T u;
 				T v;
 			};
-			struct {
-				T r;
-				T g;
-			};
 		};
 	};
 
@@ -232,8 +228,6 @@ namespace lm {
 		union {
 			T data[3];
 			Vector<T, 2> xy;
-			Vector<T, 2> rg;
-			T r;
 			struct {
 				T x;
 				union {
@@ -241,12 +235,7 @@ namespace lm {
 						T y;
 						T z;
 					};
-					struct {
-						T g;
-						T b;
-					};
 					Vector<T, 2> yz;
-					Vector<T, 2> gb;
 				};
 			};
 		};
@@ -265,15 +254,11 @@ namespace lm {
 #endif
 		union {
 			T data[4];
-			Vector<T, 3> rgb;
-			Vector<T, 3> rg;
 			Vector<T, 3> xyz;
 			Vector<T, 2> xy;
-			T r;
 			struct {
 				T x;
 				union {
-					T g;
 					struct {
 						T y;
 						union {
@@ -281,16 +266,9 @@ namespace lm {
 								T z;
 								T w;
 							};
-							struct {
-								T b;
-								T a;
-							};
 							Vector<T, 2> zw;
-							Vector<T, 2> ba;
 						};
 					};
-					Vector<T, 2> gb;
-					Vector<T, 3> gba;
 					Vector<T, 2> yz;
 					Vector<T, 3> yzw;
 				};

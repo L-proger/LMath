@@ -92,7 +92,7 @@ int main() {
 
 		auto dot_1 = lm::dot(t3, t3);
 		auto cross_1 = lm::cross(float3::up(), float3::right());
-		t3.gb.r = 1.0f;
+
 		
 		auto asdouble_0 = lm::asdouble(123, 456);
 		auto asdouble_1 = lm::asdouble(Vector<uint32_t, 2>(2, 2), Vector<uint32_t, 2>(300, 400));
@@ -244,7 +244,7 @@ int main() {
 	auto dist_1 = lm::distance(t3, norm_1);
 	auto dot_1 = lm::dot(lm::normalize(t3), lm::normalize(t3));
 
-	t3.gb.r = 1.0f;
+
 
 	
 	std::cin.get();
