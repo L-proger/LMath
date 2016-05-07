@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <array>
 #include "lm_types.h"
+#include "lm_detail.h"
 
 namespace lm {
 	template<typename T, lm_size_type Size>
@@ -95,6 +96,25 @@ namespace lm {
 		}
 #endif
 
+	
+		bool operator==(const Vector& value) const RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) {
+				if(data[i] != value.data[i]){
+					return false;
+				}
+			}
+			return true;
+		}
+
+		bool operator!=(const Vector& value) const RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) {
+				if (data[i] != value.data[i]) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		//op add
 		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
 		auto operator+(U value) const RESTRICT(cpu, amp) {
@@ -113,6 +133,24 @@ namespace lm {
 			}
 			return result;
 		}
+
+		//op add self
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		auto operator+=(U value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) {
+				this->data[i] += value;
+			}
+			return *this;
+		}
+
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
+		auto operator+=(const U& value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) {
+				this->data[i] += value.data[i];
+			}
+			return *this;
+		}
+
 
 
 		//op sub
@@ -134,6 +172,19 @@ namespace lm {
 			return result;
 		}
 
+		//op sub self
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		Vector& operator-=(U value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) { this->data[i] -= value; }
+			return *this;
+		}
+
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
+		Vector& operator -=(const U& value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) { this->data[i] -= value.data[i]; }
+			return *this;
+		}
+
 		//op mul
 		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
 		auto operator*(U value) const RESTRICT(cpu, amp) {
@@ -153,6 +204,21 @@ namespace lm {
 			return result;
 		}
 
+		//op mul self
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		Vector& operator*=(U value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) { this->data[i] *= value; }
+			return *this;
+		}
+
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
+		Vector& operator *=(const U& value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) { this->data[i] *= value.data[i]; }
+			return *this;
+		}
+
+
+
 		//op div
 		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
 		auto operator/(U value) const RESTRICT(cpu, amp) {
@@ -170,6 +236,19 @@ namespace lm {
 				result.data[i] = this->data[i] / value.data[i];
 			}
 			return result;
+		}
+
+		//op div self
+		template<typename U, typename = typename std::enable_if<!vector_traits::is_vector<U>::value>::type>
+		Vector& operator /=(U value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) { this->data[i] /= value; }
+			return *this;
+		}
+
+		template<typename U, typename = typename std::enable_if<vector_traits::is_vector<U>::value && (U::size == Size)>::type>
+		Vector& operator /=(const U& value) RESTRICT(cpu, amp) {
+			for (lm_size_type i = 0; i < Size; ++i) { this->data[i] /= value.data[i]; }
+			return *this;
 		}
 
 

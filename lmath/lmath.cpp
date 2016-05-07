@@ -1,4 +1,4 @@
-#include "lm.h"
+#include "lmath.h"
 #include <iostream>
 
 using namespace concurrency;
@@ -69,11 +69,19 @@ int main() {
 	array_view<lm::float3, 1> arr_result(amp_result_vector);
 	arr_result.discard_data();
 
+	float3 mul_self_0(1, 2, 3);
+	mul_self_0 *= 2;
+	mul_self_0 *= float3(2,3,4);
+	mul_self_0 /= 2;
+	mul_self_0 /= float3(4, 4, 4);
+	mul_self_0 += 1;
+	mul_self_0 += float3(4, 4, 4);
+
+	mul_self_0 -= 2;
+	mul_self_0 -= float3(2, 2, 2);
+
 	//AMP test
-	parallel_for_each(arr.extent, [=](index<1> idx) restrict(amp) {
-		/*test_float2();
-		test_float3();
-		test_float4();*/
+	/*parallel_for_each(arr.extent, [=](index<1> idx) restrict(amp) {
 
 		float3x3 m1;
 		auto col1 = m1.get_column(0);
@@ -206,7 +214,7 @@ int main() {
 
 
 
-	});
+	});*/
 
 	arr_result.synchronize(access_type_auto);
 	
@@ -294,6 +302,11 @@ int main() {
 	mat.rows[0] = float4(1, 0, 0, 1);
 	mat.rows[3] = float4(3);
 	auto col0 = mat.get_column(0);
+
+
+	float4x4 mWorld;
+
+	mWorld = float4x4::identity();
 
 
 	auto mat33 = (float3x3)mat;
