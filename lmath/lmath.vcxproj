@@ -159,6 +159,7 @@
     <ClInclude Include="lm_plane_intrin.h" />
     <ClInclude Include="lm_quaternion.h" />
     <ClInclude Include="lm_quaternion_intrin.h" />
+    <ClInclude Include="lm_stdio.h" />
     <ClInclude Include="lm_types.h" />
     <ClInclude Include="lm_common.h" />
     <ClInclude Include="lm_common_intrin.h" />

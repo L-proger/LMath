@@ -39,6 +39,13 @@ namespace lm {
 			matrix.rows[3];
 	}
 
+	template<typename T1, typename T2>
+	static inline Vector<T1, 3> mul(const Matrix<T2, 3, 3>& matrix, const Vector<T1, 3>& coord) {
+		return matrix.rows[0] * coord.x +
+			matrix.rows[1] * coord.y +
+			matrix.rows[2] * coord.z;
+	}
+
 
 	template<typename T, typename = typename std::enable_if<matrix_traits::is_square<T>::value && (T::rows_count == 3 || T::rows_count == 4)>::type>
 	auto matrix_determinant_affine(const T& src) RESTRICT(cpu, amp) {
