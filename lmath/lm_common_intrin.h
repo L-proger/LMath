@@ -16,6 +16,14 @@
 
 namespace lm {
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
 #define LM_PI 3.14159265358979
 
 	inline double asdouble(uint32_t lowbits, uint32_t highbits) RESTRICT(cpu, amp) {
@@ -231,7 +239,35 @@ namespace lm {
 		return matrix4x4_translation<T, U>(position.x, position.y, position.z);
 	}
 
-	
+	template<typename T>
+	static inline T saturate(const T& position) {
+		T result;
+		for(lm_size_type i = 0; i < T::size; ++i){
+			result.data[i] = (std::min)(1.0f, (std::max)(0.0f, position.data[i]));
+		}
+		return result;
+	}
+	//lm::saturate(result);
+
+
+	template<typename T>
+	static inline T max(const T& left, const T& right) {
+		T result;
+		for (lm_size_type i = 0; i < T::size; ++i) {
+			result.data[i] = (std::max)(left.data[i], right.data[i]);
+		}
+		return result;
+	}
+
+	template<typename T>
+	static inline T min(const T& left, const T& right) {
+		T result;
+		for (lm_size_type i = 0; i < T::size; ++i) {
+			result.data[i] = (std::min)(left.data[i], right.data[i]);
+		}
+		return result;
+	}
+
 #endif
 }
 #endif // lm_common_intrin_h__
