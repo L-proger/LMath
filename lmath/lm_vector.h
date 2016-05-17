@@ -32,6 +32,20 @@ namespace lm {
 		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
 		constexpr Vector(T x, T y, T z, T w) RESTRICT(cpu) : Vector_data<T, Size>(x, y, z, w) {}
 
+
+		//Vector4 extended constructors
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
+		constexpr Vector(const Vector<T, 3>& xyz, T w) RESTRICT(cpu) : Vector_data<T, Size>(xyz.x, xyz.y, xyz.z, w) {}
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
+		constexpr Vector(T x, const Vector<T, 3>& yzw) RESTRICT(cpu) : Vector_data<T, Size>(x, yzw.x, yzw.y, yzw.z) {}
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
+		constexpr Vector(const Vector<T, 2>& xy, T z, T w) RESTRICT(cpu) : Vector_data<T, Size>(xy.x, xy.y, z, w) {}
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
+		constexpr Vector(T x, const Vector<T, 2>& yz, T w) RESTRICT(cpu) : Vector_data<T, Size>(x, yz.x, yz.y, w) {}
+		template<lm_size_type S = Size, typename = typename std::enable_if<S == 4>::type>
+		constexpr Vector(T x, T y, const Vector<T, 2>& zw) RESTRICT(cpu) : Vector_data<T, Size>(x, y, zw.x, zw.y) {}
+
+
 		template<lm_size_type S = Size, typename = typename std::enable_if<S == 3>::type>
 		static constexpr Vector right() RESTRICT(cpu) {
 			return Vector(1, 0, 0);

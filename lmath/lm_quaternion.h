@@ -4,6 +4,7 @@
 #include <cmath>
 #include "lm_vector_intrin.h"
 
+
 namespace lm {
 	template<typename T>
 	struct Quaternion {
