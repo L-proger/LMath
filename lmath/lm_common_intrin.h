@@ -43,20 +43,24 @@ namespace lm {
 	auto ceil(const T& v)RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](auto x) {return (std::ceil)(x); });
 	}
+
+#if defined(LM_AMP_SUPPORTED)
 	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
 	auto ceil(const T& v)RESTRICT(amp) {
 		return transform_copy_helper<T>::execute(v, [](auto x) {return concurrency::precise_math::ceil(x); });
 	}
+	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
+	auto floor(const T& v) RESTRICT(amp) {
+		return transform_copy_helper<T>::execute(v, [](auto x) {return concurrency::precise_math::floor(x); });
+	}
+#endif
 
 
 	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
 	auto floor(const T& v) RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](auto x) {return std::floor(x); });
 	}
-	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
-	auto floor(const T& v) RESTRICT(amp) {
-		return transform_copy_helper<T>::execute(v, [](auto x) {return concurrency::precise_math::floor(x); });
-	}
+	
 
 
 
@@ -147,7 +151,7 @@ namespace lm {
 		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return concurrency::precise_math::acos(e); });
 	}
 
-
+#endif
 	template<typename T>
 	static inline Matrix<T, 4, 4> matrix4x4_lookat_lh(const Vector<T, 3>& position, const Vector<T, 3>& target, const Vector<T, 3>& up_direction) {
 		Vector<T, 3> forward = lm::normalize(target - position);//res1
@@ -268,6 +272,6 @@ namespace lm {
 		return result;
 	}
 
-#endif
+
 }
 #endif // lm_common_intrin_h__

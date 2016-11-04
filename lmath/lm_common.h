@@ -37,6 +37,7 @@ namespace lm{
 			}
 			return result;
 		}
+#if defined(LM_AMP_SUPPORTED)
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op)RESTRICT(amp) {
 			std::remove_cv<T>::type result;
@@ -45,6 +46,7 @@ namespace lm{
 			}
 			return result;
 		}
+#endif
 	};
 
 
@@ -54,10 +56,12 @@ namespace lm{
 		static auto execute(const T& v, OpUnary op) RESTRICT(cpu) {
 			return op(v);
 		}
+#if defined(LM_AMP_SUPPORTED)
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op) RESTRICT(amp) {
 			return op(v);
 		}
+#endif
 	};
 }
 

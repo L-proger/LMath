@@ -113,7 +113,7 @@ namespace lm {
 	
 		bool operator==(const Vector& value) const RESTRICT(cpu, amp) {
 			for (lm_size_type i = 0; i < Size; ++i) {
-				if(data[i] != value.data[i]){
+				if(this->data[i] != value.data[i]){
 					return false;
 				}
 			}
@@ -122,7 +122,7 @@ namespace lm {
 
 		bool operator!=(const Vector& value) const RESTRICT(cpu, amp) {
 			for (lm_size_type i = 0; i < Size; ++i) {
-				if (data[i] != value.data[i]) {
+				if (this->data[i] != value.data[i]) {
 					return true;
 				}
 			}

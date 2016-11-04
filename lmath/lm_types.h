@@ -2,7 +2,7 @@
 #define lm_types_h__
 
 #if defined(_MSC_VER)
-#define LM_AMP_SUPPORTED
+//#define LM_AMP_SUPPORTED
 #endif
 
 
