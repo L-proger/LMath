@@ -1,38 +1,30 @@
 #ifndef lm_vector_traits_h__
 #define lm_vector_traits_h__
 
-#include <type_traits>
+#include "lm_traits.h"
+#include "lm_types.h"
 
 namespace lm {
+	namespace Detail {
+		template<typename T>
+		struct IsVector : public std::false_type {};
 
-namespace vector_traits {
+		template<typename T, lm::LmSize N>
+		struct IsVector<lm::Vector<T, N>> : public std::true_type {};
+
+		template<typename T, bool IsVector>
+		struct VectorSize : std::integral_constant<lm::LmSize, 1> {};
+
+		template<typename T>
+		struct VectorSize<T, true> : std::integral_constant<lm::LmSize, T::Size> {};
+	}
 
 	template<typename T>
-	struct is_vector {
-		static constexpr bool value = true; //TODO: fixme
-	};
-
-
-	template<typename T, bool IsVector = is_vector<T>::value>
-	struct field_type {
-		typedef typename T::element_type type;
-	};
+	struct IsVector : public Detail::IsVector<std::remove_cv_t<T>> {};
 
 	template<typename T>
-	struct field_type<T, false> {
-		typedef T type;
-	};
+	struct VectorSize : Detail::VectorSize<T, IsVector<T>::value> {};
 
-	template<typename T1, typename T2, bool IsVectors = (is_vector<T1>::value && is_vector<T2>::value)>
-	struct is_same_extent {
-		static constexpr bool value = T1::size == T2::size;
-	};
-
-	template<typename T1, typename T2>
-	struct is_same_extent<T1, T2, false> {
-		static constexpr bool value = false;
-	};
-}
 }
 
 #endif // lm_vector_traits_h__

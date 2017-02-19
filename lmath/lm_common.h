@@ -6,16 +6,6 @@
 
 namespace lm{
 	namespace common_traits {
-		template<typename T, bool Success = (lm::vector_traits::is_vector<T>::value || lm::matrix_traits::is_matrix<T>::value)>
-		struct is_lm_type {
-			static constexpr bool value = true;
-		};
-
-		template<typename T>
-		struct is_lm_type<T, false> {
-			static constexpr bool value = false;
-		};
-
 		template<typename T, bool Valid = common_traits::is_lm_type<T>::value>
 		struct field_type {
 			typedef typename T::element_type type;
@@ -32,7 +22,7 @@ namespace lm{
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op)RESTRICT(cpu) {
 			typename std::remove_cv<T>::type result;
-			for (lm_size_type i = 0; i < T::size; ++i) {
+			for (LmSize i = 0; i < T::size; ++i) {
 				result.data[i] = op(v.data[i]);
 			}
 			return result;
@@ -41,7 +31,7 @@ namespace lm{
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op)RESTRICT(amp) {
 			std::remove_cv<T>::type result;
-			for (lm_size_type i = 0; i < T::size; ++i) {
+			for (LmSize i = 0; i < T::size; ++i) {
 				result.data[i] = op(v.data[i]);
 			}
 			return result;

@@ -6,12 +6,12 @@
 
 namespace lm
 {
-	template<typename T, size_t Size>
-	std::ostream& operator<<(std::ostream& os, const Vector<T, Size>& obj) {
+	template<typename T, size_t N>
+	std::ostream& operator<<(std::ostream& os, const Vector<T, N>& obj) {
 		os << "[";
-		for (size_t i = 0; i < Size; ++i) {
+		for (size_t i = 0; i < N; ++i) {
 			os << obj.data[i];
-			if(i != (Size - 1))
+			if(i != (N - 1))
 			{
 				os << ", ";
 			}

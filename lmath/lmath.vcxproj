@@ -150,25 +150,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lmath.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="lmath.h" />
-    <ClInclude Include="lm_detail.h" />
     <ClInclude Include="lm_plane.h" />
     <ClInclude Include="lm_plane_intrin.h" />
     <ClInclude Include="lm_quaternion.h" />
     <ClInclude Include="lm_quaternion_intrin.h" />
     <ClInclude Include="lm_stdio.h" />
+    <ClInclude Include="lm_traits.h" />
     <ClInclude Include="lm_types.h" />
     <ClInclude Include="lm_common.h" />
     <ClInclude Include="lm_common_intrin.h" />
     <ClInclude Include="lm_matrix.h" />
-    <ClInclude Include="lm_matrix_intrin.h" />
     <ClInclude Include="lm_matrix_traits.h" />
-    <ClInclude Include="lm_utils.h" />
     <ClInclude Include="lm_vector.h" />
-    <ClInclude Include="lm_vector_intrin.h" />
     <ClInclude Include="lm_vector_traits.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

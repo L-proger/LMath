@@ -2,7 +2,6 @@
 #define lm_quaternion_h__
 
 #include <cmath>
-#include "lm_vector_intrin.h"
 
 
 namespace lm {

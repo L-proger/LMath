@@ -20,7 +20,7 @@ namespace lm {
 #define RESTRICT(...)
 #endif
 
-	typedef size_t lm_size_type;
+	typedef size_t LmSize;
 }
 
 #endif // lm_types_h__

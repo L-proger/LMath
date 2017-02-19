@@ -2,9 +2,7 @@
 #define lm_common_intrin_h__
 
 #include "lm_vector.h"
-#include "lm_vector_intrin.h"
 #include "lm_matrix.h"
-#include "lm_matrix_intrin.h"
 #include "lm_common.h"
 #include "lm_quaternion.h"
 
@@ -105,7 +103,7 @@ namespace lm {
 	}
 
 	template<typename T> auto all(const T& v)RESTRICT(cpu, amp) {
-		for (lm_size_type i = 0; i < T::size; ++i) {
+		for (LmSize i = 0; i < T::size; ++i) {
 			if (v.data[i] == (typename T::element_type)(0)) {
 				return false;
 			}
@@ -114,7 +112,7 @@ namespace lm {
 	}
 
 	template<typename T> auto any(const T& v) RESTRICT(cpu, amp) {
-		for (lm_size_type i = 0; i < T::size; ++i) {
+		for (LmSize i = 0; i < T::size; ++i) {
 			if (v.data[i] != (typename T::element_type)(0)) {
 				return true;
 			}
@@ -244,7 +242,7 @@ namespace lm {
 	template<typename T>
 	static inline T saturate(const T& position) {
 		T result;
-		for(lm_size_type i = 0; i < T::size; ++i){
+		for(LmSize i = 0; i < T::size; ++i){
 			result.data[i] = (std::min)(1.0f, (std::max)(0.0f, position.data[i]));
 		}
 		return result;
@@ -255,7 +253,7 @@ namespace lm {
 	template<typename T>
 	static inline T max(const T& left, const T& right) {
 		T result;
-		for (lm_size_type i = 0; i < T::size; ++i) {
+		for (LmSize i = 0; i < T::size; ++i) {
 			result.data[i] = (std::max)(left.data[i], right.data[i]);
 		}
 		return result;
@@ -264,7 +262,7 @@ namespace lm {
 	template<typename T>
 	static inline T min(const T& left, const T& right) {
 		T result;
-		for (lm_size_type i = 0; i < T::size; ++i) {
+		for (LmSize i = 0; i < T::size; ++i) {
 			result.data[i] = (std::min)(left.data[i], right.data[i]);
 		}
 		return result;
