@@ -58,7 +58,7 @@ namespace lm {
 		return std::sqrt(result);
 	}
 
-	template<typename T1, typename T2, typename = typename std::enable_if<vector_traits::is_same_extent<T1, T2>::value>::type>
+	/*template<typename T1, typename T2, typename = typename std::enable_if<vector_traits::is_same_extent<T1, T2>::value>::type>
 	inline auto dot(const T1& v1, const T2& v2) RESTRICT(amp, cpu) {
 		//return std::inner_product(std::begin(v1.data), std::end(v1.data), std::begin(v2.data), static_cast<typename T1::element_type>(0)); Unchecked iterator warning.
 		typename T1::element_type accumulator = (typename T1::element_type)0;
@@ -66,7 +66,7 @@ namespace lm {
 			accumulator += v1.data[i] * v2.data[i];
 		}
 		return accumulator;
-	}
+	}*/
 	
 	template<typename T>
 	inline auto cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2)RESTRICT(cpu, amp) {

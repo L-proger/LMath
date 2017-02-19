@@ -4,15 +4,12 @@
 #include <type_traits>
 
 namespace lm {
-struct Vector_base {
-
-};
 
 namespace vector_traits {
 
 	template<typename T>
 	struct is_vector {
-		static constexpr bool value = std::is_base_of<lm::Vector_base, T>::value;
+		static constexpr bool value = true; //TODO: fixme
 	};
 
 

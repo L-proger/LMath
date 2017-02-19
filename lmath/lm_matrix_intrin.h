@@ -4,50 +4,40 @@
 #include "lm_matrix.h"
 
 namespace lm {
-	template<typename T1, typename T2, typename = typename std::enable_if<lm::matrix_traits::can_multiply<T1, T2>::value>::type>
-	auto mul(T1 l, T2 r) RESTRICT(cpu, amp) {
-		typedef Matrix<decltype(l.data_2d[0][0] * r.data_2d[0][0]), T1::rows_count, T2::columns_count> result_t;
-		result_t result;
 
-		for (lm_size_type y = 0; y < T1::rows_count; ++y) {
-			for (lm_size_type x = 0; x < T2::columns_count; ++x) {
-				typename result_t::element_type e = (typename result_t::element_type)0;
+	template<typename T1, typename T2, lm_size_type Size>
+	auto dot(const Vector<T1, Size>& left, const Vector<T2, Size>& right) {
+		auto result = (MultiplyType<T1, T2>)0;
+		for (lm_size_type i = 0; i < Size; ++i) {
+			result += left[i] * right[i];
+		}
+		return result;
+	}
 
-				for (lm_size_type i = 0; i < T2::rows_count; ++i) {
-					e += l.data_2d[y][i] * r.data_2d[i][x];
+
+	template<typename T1, typename T2, lm_size_type M, lm_size_type N, lm_size_type N2>
+	auto mul(const Matrix<T1, M, N>& left, const Matrix<T2, N, N2>& right) {
+		auto result = Matrix<MultiplyType<T1, T2>, M, N2>{};
+		for (lm_size_type y = 0; y < M; ++y) {
+			for (lm_size_type x = 0; x < N2; ++x) {
+				for (lm_size_type i = 0; i < N; ++i) {
+					result[y][x] += left[y][i] * right[i][x];
 				}
-
-				result.data_2d[y][x] = e;
 			}
 		}
 		return result;
 	}
 
-	template<typename T1, typename T2>
-	static inline Vector<T1, 4> mul(const Matrix<T2, 4, 4>& matrix, const Vector<T1, 4>& coord) {
-		return matrix.rows[0] * coord.x +
-			matrix.rows[1] * coord.y +
-			matrix.rows[2] * coord.z +
-			matrix.rows[3] * coord.w;
+	template<typename TM, typename TV, lm_size_type M, lm_size_type N>
+	auto mul(const Matrix<TM, M, N>& left, const Vector<TV, N>& right) {
+		auto result = Vector<MultiplyType<TM, TV>, N>{};
+		for (lm_size_type y = 0; y < M; ++y) {
+			result[y] = dot(left[y], right);
+		}
+		return result;
 	}
-
-	template<typename T1, typename T2>
-	static inline Vector<T1, 4> mul(const Matrix<T2, 4, 4>& matrix, const Vector<T1, 3>& coord) {
-		return matrix.rows[0] * coord.x +
-			matrix.rows[1] * coord.y +
-			matrix.rows[2] * coord.z +
-			matrix.rows[3];
-	}
-
-	template<typename T1, typename T2>
-	static inline Vector<T1, 3> mul(const Matrix<T2, 3, 3>& matrix, const Vector<T1, 3>& coord) {
-		return matrix.rows[0] * coord.x +
-			matrix.rows[1] * coord.y +
-			matrix.rows[2] * coord.z;
-	}
-
-
-	template<typename T, typename = typename std::enable_if<matrix_traits::is_square<T>::value && (T::rows_count == 3 || T::rows_count == 4)>::type>
+	
+	/*template<typename T, typename = typename std::enable_if<matrix_traits::is_square<T>::value && (T::rows_count == 3 || T::rows_count == 4)>::type>
 	auto matrix_determinant_affine(const T& src) RESTRICT(cpu, amp) {
 		return  (src.data_2d[0][0] * src.data_2d[1][1] * src.data_2d[2][2] +
 			src.data_2d[1][0] * src.data_2d[2][1] * src.data_2d[0][2] +
@@ -152,6 +142,6 @@ namespace lm {
 				result.data[j] *= det;
 		}
 		return result;
-	}
+	}*/
 }
 #endif // lm_matrix_intrin_h__

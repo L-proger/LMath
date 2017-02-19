@@ -6,7 +6,7 @@
 
 namespace lm{
 	namespace common_traits {
-		template<typename T, bool Success = lm::vector_traits::is_vector<T>::value || lm::matrix_traits::is_matrix<T>::value>
+		template<typename T, bool Success = (lm::vector_traits::is_vector<T>::value || lm::matrix_traits::is_matrix<T>::value)>
 		struct is_lm_type {
 			static constexpr bool value = true;
 		};
@@ -31,7 +31,7 @@ namespace lm{
 	struct transform_copy_helper {
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op)RESTRICT(cpu) {
-			std::remove_cv<T>::type result;
+			typename std::remove_cv<T>::type result;
 			for (lm_size_type i = 0; i < T::size; ++i) {
 				result.data[i] = op(v.data[i]);
 			}

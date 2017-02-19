@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../lmath/lm.h"
+#include "../lmath/lmath.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace lm;

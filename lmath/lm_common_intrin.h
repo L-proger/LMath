@@ -3,16 +3,14 @@
 
 #include "lm_vector.h"
 #include "lm_vector_intrin.h"
-
 #include "lm_matrix.h"
 #include "lm_matrix_intrin.h"
-
 #include "lm_common.h"
-
 #include "lm_quaternion.h"
 
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 
 namespace lm {
 
@@ -34,12 +32,12 @@ namespace lm {
 		return result;
 	}
 
-	template<typename T, typename = std::enable_if<vector_traits::is_vector<T>::value && (T::size == 2) && std::is_same<typename T::element_type, uint32_t>::value>::type>
+	template<typename T, typename = typename std::enable_if<vector_traits::is_vector<T>::value && (T::size == 2) && std::is_same<typename T::element_type, uint32_t>::value>::type>
 	auto asdouble(const T& lowbits, const T& highbits) RESTRICT(cpu, amp) {
 		return Vector<double, 2>(asdouble(lowbits.x, highbits.x), asdouble(lowbits.y, highbits.y));
 	}
 
-	template<typename T, typename = std::enable_if<common_traits::is_lm_type<T>::value>>
+	template<typename T, typename = typename std::enable_if<lm::common_traits::is_lm_type<T>::value>::type>
 	auto ceil(const T& v)RESTRICT(cpu) {
 		return transform_copy_helper<T>::execute(v, [](auto x) {return (std::ceil)(x); });
 	}
@@ -75,35 +73,35 @@ namespace lm {
 	}
 	
 	template<typename T> auto pow(const T& v, typename T::element_type arg) RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [arg](T::element_type e)RESTRICT(cpu) { return std::pow(e, arg); });
+		return transform_copy_helper<T>::execute(v, [arg](typename T::element_type e)RESTRICT(cpu) { return std::pow(e, arg); });
 	}
 
 	template<typename T> auto abs(const T& v) RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::abs(e); });
+		return transform_copy_helper<T>::execute(v, [](typename T::element_type e) { return std::abs(e); });
 	}
 
 	template<typename T> auto acos(const T& v) RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::acos(e); });
+		return transform_copy_helper<T>::execute(v, [](typename T::element_type e) { return std::acos(e); });
 	}
 	
 	template<typename T> auto asin(const T& v)RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::asin(e); });
+		return transform_copy_helper<T>::execute(v, [](typename T::element_type e) { return std::asin(e); });
 	}
 
 	template<typename T> auto atan(const T& v) RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](T::element_type e) { return std::atan(e); });
+		return transform_copy_helper<T>::execute(v, [](typename T::element_type e) { return std::atan(e); });
 	}
 	
 	template<typename T> auto cos(const T& v) RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](common_traits::field_type<T>::type e) { return std::cos(e); });
+		return transform_copy_helper<T>::execute(v, [](typename lm::common_traits::field_type<T>::type e) { return std::cos(e); });
 	}
 	
 	template<typename T> auto cosh(T& v)RESTRICT(cpu) {
-		return transform_copy_helper<T>::execute(v, [](typename common_traits::field_type<T>::type e) { return std::cosh(e); });
+		return transform_copy_helper<T>::execute(v, [](typename lm::common_traits::field_type<T>::type e) { return std::cosh(e); });
 	}
 	
 	template<typename T> auto degrees(const T& v) RESTRICT(cpu, amp) {
-		return transform_copy_helper<T>::execute(v, [](typename common_traits::field_type<T>::type e) { return e * (decltype(e))180 / (decltype(e))LM_PI; });
+		return transform_copy_helper<T>::execute(v, [](typename lm::common_traits::field_type<T>::type e) { return e * (decltype(e))180 / (decltype(e))LM_PI; });
 	}
 
 	template<typename T> auto all(const T& v)RESTRICT(cpu, amp) {
@@ -170,7 +168,7 @@ namespace lm {
 	template<typename T>
 	static inline Matrix<T, 4, 4> matrix4x4_perspective(T fov, T aspect, T near_clip, T far_clip) {
 		Matrix<T, 4, 4> result;
-		float yScale = static_cast<T>(1) / (std::tanf(fov / static_cast<T>(2)));
+		float yScale = static_cast<T>(1) / (std::tan(fov / static_cast<T>(2)));
 		result.rows[0] = Vector<T, 4>(yScale / aspect, 0, 0, 0);
 		result.rows[1] = Vector<T, 4>(0, yScale, 0, 0);
 		result.rows[2] = Vector<T, 4>(0, 0, far_clip / (far_clip - near_clip), 1);

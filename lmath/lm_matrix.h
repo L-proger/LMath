@@ -8,76 +8,11 @@
 
 namespace lm {
 //row-major matrix
-	template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
+	
+	/*template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
 	struct Matrix_data {
-		static constexpr lm_size_type rows_count = RowsCount;
-		static constexpr lm_size_type columns_count = ColumnsCount;
-		static constexpr lm_size_type size = rows_count * columns_count;
-		typedef Vector<T, ColumnsCount> row_type;
-		typedef Vector<T, RowsCount> column_type;
-		typedef T element_type;
-
-		Matrix_data() RESTRICT(cpu, amp){
-			for(lm_size_type i= 0; i < (RowsCount * ColumnsCount); ++i){
-				data[i] = (T)0;
-			}
-		}
-
-		Matrix_data(element_type value) RESTRICT(cpu, amp) {
-			for (lm_size_type i = 0; i < (RowsCount * ColumnsCount); ++i) {
-				data[i] = value;
-			}
-		}
-
-		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 1>::type>
-		constexpr Matrix_data(row_type r0) RESTRICT(cpu) : rows{ r0} {}
-
-		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 2>::type>
-		constexpr Matrix_data(row_type r0, row_type r1) RESTRICT(cpu) : rows{ r0,r1} {}
-
-		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 3>::type>
-		constexpr Matrix_data(row_type r0, row_type r1, row_type r2) RESTRICT(cpu) : rows{ r0,r1,r2} {}
-
-		template<typename U = Matrix_data, typename = typename std::enable_if<U::rows_count == 4>::type>
-		constexpr Matrix_data(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(cpu) : rows{ r0,r1,r2,r3 } {}
-
-#if defined(LM_AMP_SUPPORTED)
-		template<typename = std::enable_if<rows_count == 1>::type>
-		Matrix_data(row_type r0) RESTRICT(amp) : rows{ r0 } {}
-
-		template<typename = std::enable_if<rows_count == 2>::type>
-		Matrix_data(row_type r0, row_type r1) RESTRICT(amp) : rows{ r0,r1 } {}
-
-		template<typename = std::enable_if<rows_count == 3>::type>
-		Matrix_data(row_type r0, row_type r1, row_type r2) RESTRICT(amp) : rows{ r0,r1,r2 } {}
-
-		template<typename = std::enable_if<rows_count == 4>::type>
-		Matrix_data(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(amp) : rows{ r0,r1,r2,r3 } {}
-#endif
-
-	    union {
-			T data[RowsCount * ColumnsCount];
-			T data_2d[RowsCount][ColumnsCount];
-			Vector<T, ColumnsCount> rows[RowsCount];
-		};
-	};
-
-	template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
-	struct Matrix : public Matrix_base, public Matrix_data<T, RowsCount, ColumnsCount> {
-		typedef Matrix_data<T, RowsCount, ColumnsCount> data_t;
-
-		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 1>::type>
-		constexpr Matrix(typename data_t::row_type r0) RESTRICT(cpu) : data_t{ r0 } {}
-
-		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 2>::type>
-		constexpr Matrix(typename data_t::row_type r0, typename data_t::row_type r1) RESTRICT(cpu) : data_t { r0,r1} {}
-
-		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 3>::type>
-		constexpr Matrix(typename data_t::row_type r0, typename data_t::row_type r1, typename data_t::row_type r2) RESTRICT(cpu) : data_t { r0,r1,r2 } {}
-
-		template<typename U = Matrix, typename = typename std::enable_if<U::rows_count == 4>::type>
-		constexpr Matrix(typename data_t::row_type r0, typename data_t::row_type r1, typename data_t::row_type r2, typename data_t::row_type r3) RESTRICT(cpu) : data_t { r0,r1,r2,r3 } {}
-
+	
+	
 
 		Matrix& operator=(const Matrix& value) RESTRICT(cpu, amp) {
 			for (lm_size_type i = 0; i < RowsCount * ColumnsCount; ++i) {
@@ -162,7 +97,11 @@ namespace lm {
 			}
 			return result;
 		}
-	};
+	};*/
+
+	template<typename T, lm_size_type Rows, lm_size_type Columns>
+	using Matrix = Vector<Vector<T, Columns>, Rows>;
+
 
 	typedef Matrix<float, 2, 2> float2x2;
 	typedef Matrix<float, 2, 3> float2x3;

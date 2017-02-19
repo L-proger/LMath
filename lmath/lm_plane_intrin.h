@@ -32,7 +32,7 @@ namespace lm
 		return (((plane.Normal.X * value.X) + (plane.Normal.Y * value.Y)) + (plane.Normal.Z * value.Z));
 	}*/
 	template<typename T, typename U>
-	static inline auto dot(const Plane<T>& plane, const Vector<U, 3>& value) {
+	static inline auto dot(const Plane<T>& plane, const Vector<U, 3>& point) {
 		return ((((plane.normal.y * point.y) + (plane.normal.x * point.x)) + (plane.normal.z * point.z)) + plane.D);
 	}
 }
