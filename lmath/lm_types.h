@@ -22,6 +22,13 @@ namespace lm {
 #define ENABLE_IF_AMP(...)
 #endif
 
+	template<typename T>
+	T zero = static_cast<T>(0);
+	template<typename T>
+	T one = static_cast<T>(1);
+	template<typename T>
+	T two = static_cast<T>(2);
+
 	typedef size_t LmSize;
 }
 
