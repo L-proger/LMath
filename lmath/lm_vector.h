@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <array>
 #include "lm_types.h"
+#include "lm_constants.h"
 
 namespace lm {
 
@@ -57,6 +58,55 @@ namespace lm {
 			for (LmSize i = 0; i < N; ++i) {
 				data[i] = arg;
 			}
+		}
+
+		//UnitX
+		template<LmSize M = N>
+		static typename std::enable_if<M == 1, Vector>::type unitX() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(1));
+		}
+
+		template<LmSize M = N>
+		static typename std::enable_if<M == 2, Vector>::type unitX() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(1), static_cast<T>(0));
+		}
+
+		template<LmSize M = N>
+		static typename std::enable_if<M == 3, Vector>::type unitX() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0));
+		}
+		template<LmSize M = N>
+		static typename std::enable_if<M == 4, Vector>::type unitX() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
+		}
+
+		//UnitY
+		template<LmSize M = N>
+		static typename std::enable_if<M == 2, Vector>::type unitY() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(0), static_cast<T>(1));
+		}
+
+		template<LmSize M = N>
+		static typename std::enable_if<M == 3, Vector>::type unitY() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0));
+		}
+		template<LmSize M = N>
+		static typename std::enable_if<M == 4, Vector>::type unitY() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0), static_cast<T>(0));
+		}
+		//UnitZ
+		template<LmSize M = N>
+		static typename std::enable_if<M == 3, Vector>::type unitZ() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
+		}
+		template<LmSize M = N>
+		static typename std::enable_if<M == 4, Vector>::type unitZ() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1), static_cast<T>(0));
+		}
+		//UnitW
+		template<LmSize M = N>
+		static typename std::enable_if<M == 4, Vector>::type unitW() RESTRICT(cpu, amp) {
+			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
 		}
 
 		template<typename TR = MultiplyType<T>>
@@ -129,6 +179,179 @@ namespace lm {
 		return a * (static_cast<TC>(1) - c) + b * c;
 	}
 
+	template<typename T, LmSize N>
+	auto all(const Vector<T, N>& v) RESTRICT(cpu, amp) {
+		for (LmSize i = 0; i < N; ++i) {
+			if (v[i] == static_cast<T>(0)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	template<typename T, LmSize N>
+	auto any(const Vector<T, N>& v) RESTRICT(cpu, amp) {
+		for (LmSize i = 0; i < N; ++i) {
+			if (v[i] != static_cast<T>(0)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+#define UNPACK(...) __VA_ARGS__
+
+#define MATH_VECTOR_FUNC(_Name, _TemplateParams, _TemplateParamsNames, _ExecParams, _Params) \
+	namespace impl { \
+		template<typename T UNPACK _TemplateParams> \
+		struct _Name { \
+			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(cpu) { return std::##_Name##(v UNPACK _Params); } \
+			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math::##_Name##(v UNPACK _Params); } \
+		}; \
+		template<typename T, LmSize N UNPACK _TemplateParams> \
+		struct _Name <Vector<T, N> UNPACK _TemplateParamsNames> { \
+			static auto exec(const Vector<T, N>& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
+				Vector<decltype(##_Name##<T UNPACK _TemplateParamsNames>::exec(*static_cast<T*>(nullptr) UNPACK _Params)), N> result; \
+				for (LmSize i = 0; i < N; ++i) { result[i] = _Name##<T UNPACK _TemplateParamsNames>::exec(v[i] UNPACK _Params); } \
+				return result; \
+			} \
+		}; \
+	} \
+	template<typename T UNPACK _TemplateParams> \
+	auto _Name(const T& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
+		return impl::##_Name##<T UNPACK _TemplateParamsNames>::exec(v UNPACK _Params); \
+	}
+
+
+	namespace impl {
+		template<typename T>
+		struct abs {
+		};
+		template<>
+		struct abs<float> {
+			static auto exec(const float& v) RESTRICT(cpu) { return std::fabs(v); } 
+			static auto exec(const float& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); }
+		};
+		template<>
+		struct abs<double> {
+			static auto exec(const double& v) RESTRICT(cpu) { return std::fabs(v); }
+			static auto exec(const double& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); }
+		};
+
+		template<typename T, LmSize N>
+		struct abs<Vector<T, N>> {
+			static auto exec(const Vector<T, N>& v) RESTRICT(cpu, amp) {
+				Vector<T, N> result;
+				for (LmSize i = 0; i < N; ++i) { result[i] = abs<T>::exec(v[i]); }
+				return result;
+			}
+		};
+	}
+	template<typename T>
+	auto abs(const T& v) RESTRICT(cpu, amp) {
+		return impl::abs<T>::exec(v);
+	}
+
+#define MATH_VECTOR_FUNC_ONE_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (, typename TParam), (, TParam), (, TParam x), (, x))
+#define MATH_VECTOR_FUNC_NO_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (), (), (), ())
+
+	MATH_VECTOR_FUNC_ONE_PARAM(pow);
+	MATH_VECTOR_FUNC_NO_PARAM(sin);
+	MATH_VECTOR_FUNC_NO_PARAM(cos);
+	MATH_VECTOR_FUNC_NO_PARAM(acos);
+	MATH_VECTOR_FUNC_NO_PARAM(asin);
+	MATH_VECTOR_FUNC_NO_PARAM(cosh);
+	MATH_VECTOR_FUNC_NO_PARAM(sinh);
+	MATH_VECTOR_FUNC_NO_PARAM(tan);
+	MATH_VECTOR_FUNC_NO_PARAM(atan);
+	MATH_VECTOR_FUNC_NO_PARAM(floor);
+	MATH_VECTOR_FUNC_NO_PARAM(ceil);
+	MATH_VECTOR_FUNC_NO_PARAM(exp);
+	MATH_VECTOR_FUNC_NO_PARAM(log);
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+	namespace impl {
+		template<typename T>
+		struct min {
+			static auto exec(const T& a, const T& b) RESTRICT(cpu, amp) {
+				return a < b ? a : b;
+			}
+		};
+
+		template<typename T, LmSize N>
+		struct min<Vector<T, N>> {
+			static auto exec(const Vector<T, N>& a, const Vector<T, N>& b) RESTRICT(cpu, amp) {
+				Vector<T, N> result;
+				for (LmSize i = 0; i < N; ++i) { result[i] = impl::min<T>::exec(a[i], b[i]); }
+				return result;
+			}
+		};
+	}
+
+	template<typename T>
+	auto min(const T& a, const T& b) RESTRICT(cpu, amp) {
+		return impl::min<T>::exec(a, b);
+	}
+
+	namespace impl {
+		template<typename T>
+		struct max {
+			static auto exec(const T& a, const T& b) RESTRICT(cpu, amp) {
+				return a > b ? a : b;
+			}
+		};
+
+		template<typename T, LmSize N>
+		struct max<Vector<T, N>> {
+			static auto exec(const Vector<T, N>& a, const Vector<T, N>& b) RESTRICT(cpu, amp) {
+				Vector<T, N> result;
+				for (LmSize i = 0; i < N; ++i) { result[i] = impl::max<T>::exec(a[i], b[i]); }
+				return result;
+			}
+		};
+	}
+
+	template<typename T>
+	auto max(const T& a, const T& b) RESTRICT(cpu, amp) {
+		return impl::max<T>::exec(a, b);
+	}
+
+	template<typename T, typename TRange>
+	auto clamp(const T& a, const TRange& minValue, const TRange& maxValue) RESTRICT(cpu, amp) {
+		return lm::min(lm::max(a, minValue), maxValue);
+	}
+
+
+
+	namespace impl {
+		template<typename T>
+		struct degrees {
+			static auto exec(const T& a) RESTRICT(cpu, amp) {
+				return (static_cast<T>(180) / static_cast<T>(pi_d)) * a;
+			}
+		};
+
+		template<typename T, LmSize N>
+		struct degrees<Vector<T, N>> {
+			static auto exec(const Vector<T, N>& a) RESTRICT(cpu, amp) {
+				Vector<T, N> result;
+				for (LmSize i = 0; i < N; ++i) { result[i] = impl::degrees<T>::exec(a[i]); }
+				return result;
+			}
+		};
+	}
+
+	template<typename T>
+	auto degrees(const T& a) RESTRICT(cpu, amp) {
+		return impl::degrees<T>::exec(a);
+	}
 
 
 	typedef Vector<float, 2> float2;

@@ -63,6 +63,38 @@ static void test_float4() restrict(cpu, amp) {
 }
 */
 int main() {
+	auto deg1 = lm::degrees(lm::pi_d);
+	auto deg2 = lm::degrees(lm::pi_d / 2.0);
+
+	auto deg3 = lm::degrees(double2(pi_d / 2.0, pi_d / 3.0));
+
+	float expf = lm::exp(1.0f);
+	auto expv = lm::exp(float2(2.0f, 3.0f));
+
+	float logf = lm::log(1.0f);
+	auto logv = lm::log(float2(2.0f, 3.0f));
+
+	float minf1 = lm::min(1.0f, 2.0f);
+	float minf2 = lm::min(2.0f, 1.0f);
+	float maxf1 = lm::max(1.0f, 2.0f);
+	float maxf2 = lm::max(2.0f, 1.0f);
+
+	auto clampt = lm::clamp(float2(1.0f, 2.0f), float2(1.5f), float2(3.0f));
+
+	auto minv1 = lm::min(float2(1.0f, 2.0f), float2(5.0f, 1.0f));
+	auto minv2 = lm::min(float2(2.0f, 1.0f), float2(1.0f, 0.0f));
+	auto maxv1 = lm::max(float2(1.0f, 2.0f), float2(0.0f, 0.0f));
+	auto maxv2 = lm::max(float2(2.0f, 1.0f), float2(3.0f, 7.0f));
+
+	auto ux = float3::unitX();
+	auto pow_11 = lm::pow(float4(1.0f, 2.0f, 3.0f, 4.0f), 2.0f);
+
+	Vector<Vector<float, 2>, 2> vv;
+	vv[0] = float2(1.0f, 2.0f);
+	vv[1] = float2(3.0f, 4.0f);
+	auto pow_22 = lm::pow(vv, 2.0f);
+
+
 	test_float2();
 	std::vector<lm::float3> amp_vector = { float3(1.0f),float3(2.0f),float3(3.0f) };
 	std::vector<lm::float3> amp_result_vector(amp_vector.size());
@@ -117,20 +149,29 @@ int main() {
 	auto len_2 = t3.length();
 
 	auto norm_1 = t3.normalized();
-
-
 	auto dot_1 = dot(t3, t3);
-	//auto cross_1 = cross(float3::up(), float3::right());
+	auto cross_1 = cross(float3::unitY(), float3::unitX());
 
+	auto pow_1 = lm::pow(float4(1.0f, 2.0f, 3.0f, 4.0f), 2.0f);
+	auto abs_1 = lm::abs(float4(1.0f, -2.0f, 3.0f, -4.0f));
+	auto acos_1 = lm::acos(float4(1.0f, 0.0f, -1.0f, -0.75f));
 
-/*	auto asdouble_0 = lm::asdouble(123, 456);
-	auto asdouble_1 = lm::asdouble(Vector<uint32_t, 2>(2, 2), Vector<uint32_t, 2>(300, 400));
+	auto asin_1 = lm::asin(float4(1.0f, 0.0f, -1.0f, -0.75f));
+	auto atan_1 = lm::atan(float4(1.0f, 0.0f, -1.0f, -0.75f));
 
-	auto pow_1 = lm::pow(float4(1, 2, 3, 4), 2.0f);
-	auto abs_1 = lm::abs(float4(1, -2, 3, -4));
-	auto acos_1 = lm::acos(float4(1, 0, -1, -0.75f));
+	auto all_1 = lm::all(float4(0.0f, 0.0f, 0.0f, 0.0f));
+	auto all_2 = lm::all(float4(0.0f, 0.0f, 0.0f, 1.0f));
+	auto all_3 = lm::all(float4(0.0f, 0.0f, 1.0f, 1.0f));
+	auto all_4 = lm::all(float4(0.0f, 1.0f, 1.0f, 1.0f));
+	auto all_5 = lm::all(float4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	arr_result[idx] = lm::normalize(t3) + 2;
+	auto any_1 = lm::any(float4(0.0f, 0.0f, 0.0f, 0.0f));
+	auto any_2 = lm::any(float4(0.0f, 0.0f, 0.0f, 1.0f));
+	auto any_3 = lm::any(float4(0.0f, 0.0f, 1.0f, 1.0f));
+	auto any_4 = lm::any(float4(0.0f, 1.0f, 1.0f, 1.0f));
+	auto any_5 = lm::any(float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+/*	arr_result[idx] = lm::normalize(t3) + 2;
 
 	float4x4 mat;
 	mat.rows[0] = float4(1, 0, 0, 1);
@@ -172,38 +213,10 @@ int main() {
 	float2x3(float3(1, 3, 2), float3(0, 4, -1)),
 	float3x4(float4(2, 0, -1, 1), float4(3, -2, 1, 2), float4(0, 1, 2, 3)));
 
-	auto is_square1 = lm::matrix_traits::is_square<double5x5>::value;
-
-
-	auto asin_1 = lm::asin(float4(1, 0, -1, -0.75f));
-	auto atan_1 = lm::atan(float4(1, 0, -1, -0.75f));
-
-	auto all_1 = lm::all(float4(0, 0, 0, 0));
-	auto all_2 = lm::all(float4(0, 0, 0, 1));
-	auto all_3 = lm::all(float4(0, 0, 1, 1));
-	auto all_4 = lm::all(float4(0, 1, 1, 1));
-	auto all_5 = lm::all(float4(1, 1, 1, 1));
-
-	auto any_1 = lm::any(float4(0, 0, 0, 0));
-	auto any_2 = lm::any(float4(0, 0, 0, 1));
-	auto any_3 = lm::any(float4(0, 0, 1, 1));
-	auto any_4 = lm::any(float4(0, 1, 1, 1));
-	auto any_5 = lm::any(float4(1, 1, 1, 1));
-
-
-	auto floor_2 = lm::floor(float4(3.3f, 4.4f, 5.5f, 6.6f));
-
-	float4 test_vector = float4(3.3f, 4.4f, 5.5f, 6.6f);
-	float3x3 test_matrix = float3x3(float3(1.1f, 2.2f, 3.3f), float3(4.4f, 5.5f, 6.6f), float3(7.7f, 8.8f, 9.9f));
-
-	auto ceil_1 = lm::ceil(test_vector);
-	auto ceil_2 = lm::ceil(test_matrix);
 
 	auto clamp_1 = lm::clamp(test_vector, 1.0f, 2.0f);
 	auto clamp_2 = lm::clamp(test_matrix, 0.0f, 7.0f);
 
-	auto cos_1 = lm::cos(test_vector);
-	auto cos_2 = lm::cos(test_matrix);
 
 	auto cosh_1 = lm::cosh(test_vector);
 	auto cosh_2 = lm::cosh(test_matrix);
@@ -220,18 +233,6 @@ int main() {
 
 
 	auto norm_2 = lm::normalize(float3(1, 2, 4));
-
-	auto p1 = float3::up() / lm::length(float3::up());
-
-
-
-
-	auto dot_2 = lm::dot(float3::up(), float3::up());
-	auto dot_3 = lm::dot(float3::up(), lm::normalize(float3::up() + float3::right()));
-
-	auto deg_1 = lm::degrees(concurrency::precise_math::acos(dot_1));
-	auto deg_2 = lm::degrees(concurrency::precise_math::acos(dot_2));
-	auto deg_3 = lm::degrees(concurrency::precise_math::acos(dot_3));
 
 
 	*/
