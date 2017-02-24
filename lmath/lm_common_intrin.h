@@ -99,10 +99,10 @@ namespace lm {
 	template<typename T, typename U = T>
 	static inline Matrix<U, 4, 4> matrix4x4_scale(T sx, T sy, T sz) {
 		return Matrix<U, 4, 4>(
-			Vector<U, 4>(sx, 0, 0, 0),
-			Vector<U, 4>(0, sy, 0, 0),
-			Vector<U, 4>(0, 0, sz, 0),
-			Vector<U, 4>(0, 0, 0, 1));
+			Vector<U, 4>(sx, 0.0f, 0.0f, 0.0f),
+			Vector<U, 4>(0.0f, sy, 0.0f, 0.0f),
+			Vector<U, 4>(0.0f, 0.0f, sz, 0.0f),
+			Vector<U, 4>(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	template<typename T, typename U = T>

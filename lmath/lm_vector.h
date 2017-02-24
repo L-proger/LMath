@@ -202,12 +202,14 @@ namespace lm {
 
 #define UNPACK(...) __VA_ARGS__
 
+
+
 #define MATH_VECTOR_FUNC(_Name, _TemplateParams, _TemplateParamsNames, _ExecParams, _Params) \
 	namespace impl { \
 		template<typename T UNPACK _TemplateParams> \
 		struct _Name { \
 			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(cpu) { return std::##_Name##(v UNPACK _Params); } \
-			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math::##_Name##(v UNPACK _Params); } \
+			ENABLE_IF_AMP(static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math::##_Name##(v UNPACK _Params); }) \
 		}; \
 		template<typename T, LmSize N UNPACK _TemplateParams> \
 		struct _Name <Vector<T, N> UNPACK _TemplateParamsNames> { \
@@ -231,12 +233,12 @@ namespace lm {
 		template<>
 		struct abs<float> {
 			static auto exec(const float& v) RESTRICT(cpu) { return std::fabs(v); } 
-			static auto exec(const float& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); }
+			ENABLE_IF_AMP(static auto exec(const float& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); })
 		};
 		template<>
 		struct abs<double> {
 			static auto exec(const double& v) RESTRICT(cpu) { return std::fabs(v); }
-			static auto exec(const double& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); }
+			ENABLE_IF_AMP(static auto exec(const double& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); })
 		};
 
 		template<typename T, LmSize N>

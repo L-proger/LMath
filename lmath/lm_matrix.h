@@ -5,6 +5,7 @@
 #include "lm_types.h"
 #include <array>
 #include "lm_matrix_traits.h"
+#include <iostream>
 
 namespace lm {
 //row-major matrix
@@ -54,8 +55,24 @@ namespace lm {
 
 	template<typename T, LmSize Rows, LmSize Columns>
 	struct Matrix : public Vector<Vector<T, Columns>, Rows> {
+		typedef Vector<T, Columns> Row;
+		typedef Vector<Vector<T, Columns>, Rows> Base;
+
+		template<typename ... Args, typename = std::enable_if_t<sizeof...(Args) <= Rows>>
+		Matrix(const Args& ... rest)  RESTRICT(cpu) : Base{ rest... } {}
 
 		constexpr Matrix() RESTRICT(cpu, amp) {}
+
+		Matrix(const Matrix& m)  RESTRICT(cpu, amp) {
+			for (LmSize i = 0; i < Rows; ++i) {
+				data[i] = m.data[i];
+			}
+		}
+		Matrix(const Vector<Vector<T, Columns>, Rows>& m)  RESTRICT(cpu, amp) {
+			for (LmSize i = 0; i < Rows; ++i) {
+				data[i] = m.data[i];
+			}
+		}
 
 		auto getColumn(LmSize id) const RESTRICT(cpu, amp) {
 			Vector<T, Rows> result;

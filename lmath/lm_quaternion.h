@@ -1,8 +1,7 @@
 #ifndef lm_quaternion_h__
 #define lm_quaternion_h__
 
-#include <cmath>
-
+#include "lm_vector.h"
 
 namespace lm {
 	template<typename T>
@@ -23,13 +22,13 @@ namespace lm {
 
 		static Quaternion angle_axis(T angle, Vector<T, 3> axis) {
 			T theta = angle / static_cast<T>(2);
-			T s = static_cast<T>(std::sin(theta) / lm::length(axis));
+			T s = static_cast<T>(std::sin(theta) / axis.length());
 			T c = static_cast<T>(std::cos(theta));
 
 			return Quaternion(
-				axis.x * s,
-				axis.y * s,
-				axis.z * s, c);
+				axis[0] * s,
+				axis[1] * s,
+				axis[2] * s, c);
 		}
 	};
 

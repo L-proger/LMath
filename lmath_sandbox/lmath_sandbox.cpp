@@ -63,13 +63,22 @@ static void test_float4() restrict(cpu, amp) {
 }
 */
 int main() {
+	float4x4 ta;
+	float4x4 tb;
+	ta = tb;
+
+	Matrix<float, 4, 4> vvvv(
+		Vector<float, 4>(1.0f, 0.0f, 0.0f, 0.0f),
+		Vector<float, 4>(0.0f, 1.0f, 0.0f, 0.0f),
+		Vector<float, 4>(0.0f, 0.0f, 1.0f, 0.0f),
+		Vector<float, 4>(0.0f, 0.0f, 0.0f, 1.0f));
+
 	auto deg1 = lm::degrees(lm::pi_d);
 	auto deg2 = lm::degrees(lm::pi_d / 2.0);
-
 	auto deg3 = lm::degrees(double2(pi_d / 2.0, pi_d / 3.0));
 
 	float expf = lm::exp(1.0f);
-	auto expv = lm::exp(float2(2.0f, 3.0f));
+	auto expv  = lm::exp(float2(2.0f, 3.0f));
 
 	float logf = lm::log(1.0f);
 	auto logv = lm::log(float2(2.0f, 3.0f));
@@ -142,7 +151,7 @@ int main() {
 	auto mm1 = (float2x2)mi;
 	auto mm2 = (float3x3)mi;
 	auto mm3 = (double4x4)mi;
-
+	
 
 	float3 t3(1.0f);
 	auto len_1 = t3.lengthSquared();
