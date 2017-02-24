@@ -67,6 +67,10 @@ int main() {
 	float4x4 tb;
 	ta = tb;
 
+	float4 pp(1.0f, 2.0f, 3.0f, 4.0f);
+
+	pp.slice<1, 2>() = float2(7.0f, 8.0f);
+
 	Matrix<float, 4, 4> vvvv(
 		Vector<float, 4>(1.0f, 0.0f, 0.0f, 0.0f),
 		Vector<float, 4>(0.0f, 1.0f, 0.0f, 0.0f),

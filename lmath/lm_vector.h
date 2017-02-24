@@ -50,8 +50,47 @@ namespace lm {
 
 		constexpr Vector() RESTRICT(cpu, amp) {}
 
-		template<typename ... Args, typename = std::enable_if_t<sizeof...(Args) <= N>>
+		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>>
 		constexpr Vector(const Args& ... rest)  RESTRICT(cpu, amp) : data{ rest... } {}
+
+
+		//Vector2 constructors
+		template<typename TA, typename = std::enable_if_t<N == 2>>
+		constexpr Vector(const TA& a, const TA& b)  RESTRICT(cpu, amp) : data{ a, b } {}
+
+		//Vector3 constructors
+		template<typename TA, typename = typename std::enable_if<N == 3, T>::type>
+		Vector(const TA& a, const TA& b, const TA& c)  RESTRICT(cpu, amp) : data{ a, b, c} {}
+
+
+		template<typename TA, typename = std::enable_if_t<N == 3>>
+		constexpr Vector(const Vector<TA, 2>& a, const TA& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], b } {}
+
+		template<typename TA, typename = std::enable_if_t<N == 3>>
+		constexpr Vector(const TA& a, const Vector<TA, 2>& b)  RESTRICT(cpu, amp) : data{ a, b[0], b[1] } {}
+
+
+		//Vector4 constructors
+		template<typename TA, typename = std::enable_if_t<N == 4>>
+		constexpr Vector(const TA& a, const TA& b, const TA& c, const TA& d)  RESTRICT(cpu, amp) : data{ a, b, c, d } {}
+
+		template<typename TA, typename = std::enable_if_t<N == 4>>
+		constexpr Vector(const TA& a, const TA& b, const Vector<T, 2>& c)  RESTRICT(cpu, amp) : data{ a, b, c[0], c[1] } {}
+
+		template<typename TA, typename = std::enable_if_t<N == 4>>
+		constexpr Vector(const Vector<TA, 2>& a, const TA& b, const TA& c)  RESTRICT(cpu, amp) : data{ a[0], a[1], b, c } {}
+
+		template<typename TA, typename = std::enable_if_t<N == 4>>
+		constexpr Vector(const Vector<TA, 2>& a, const Vector<TA, 2>& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], b[0], b[1] } {}
+
+		template<typename TA, typename = std::enable_if_t<N == 4>>
+		constexpr Vector(const TA& a, const Vector<TA, 3>& b)  RESTRICT(cpu, amp) : data{ a, b[0], b[1], b[2] } {}
+
+		template<typename TA, typename = std::enable_if_t<N == 4>>
+		constexpr Vector(const Vector<TA, 3>& a, const TA& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], a[2], b } {}
+
+
+
 
 		template<typename Arg>
 		Vector(Arg arg) RESTRICT(cpu, amp) {
@@ -109,9 +148,16 @@ namespace lm {
 			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
 		}
 
+
+		template<LmSize Offset, LmSize Length, typename = std::enable_if_t<Offset + Length <= N>>
+		Vector<T, Length>& slice() {
+			return *((Vector<T, Length>*)&data[Offset]);
+		}
+
+
 		template<typename TR = MultiplyType<T>>
 		auto lengthSquared() const RESTRICT(cpu, amp) {
-			TR result{};
+			TR result = static_cast<TR>(0);
 			for (LmSize i = 0; i < N; ++i) {
 				result += data[i] * data[i];
 			}

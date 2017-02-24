@@ -8,75 +8,30 @@
 #include <iostream>
 
 namespace lm {
-//row-major matrix
-	
-	/*template<typename T, lm_size_type RowsCount, lm_size_type ColumnsCount>
-	struct Matrix_data {
-	
-	
+	template<typename T, LmSize M, LmSize N>
+	struct Matrix : public Vector<Vector<T, N>, M> {
+		typedef Vector<T, N> Row;
+		typedef Vector<Vector<T, N>, M> Base;
 
-		Matrix& operator=(const Matrix& value) RESTRICT(cpu, amp) {
-			for (lm_size_type i = 0; i < RowsCount * ColumnsCount; ++i) {
-				this->data[i] = value.data[i];
-			}
-			return *this;
-		}
-
-#if defined(LM_AMP_SUPPORTED)
-		template<typename = std::enable_if<rows_count == 1>::type>
-		Matrix(row_type r0) RESTRICT(amp) : Matrix_data{ r0 } {}
-
-		template<typename = std::enable_if<rows_count == 2>::type>
-		Matrix(row_type r0, row_type r1) RESTRICT(amp) : Matrix_data{ r0,r1 } {}
-
-		template<typename = std::enable_if<rows_count == 3>::type>
-		Matrix(row_type r0, row_type r1, row_type r2) RESTRICT(amp) : Matrix_data{ r0,r1,r2 } {}
-
-		template<typename = std::enable_if<rows_count == 4>::type>
-		Matrix(row_type r0, row_type r1, row_type r2, row_type r3) RESTRICT(amp) : Matrix_data{ r0,r1,r2,r3 } {}
-
-		template<typename U = Matrix>
-		static U identity(typename std::enable_if<(U::rows_count == 4) && (U::columns_count == 4)>::type* = 0) RESTRICT(amp) {
-			return U(row_type(1, 0, 0, 0), row_type(0, 1, 0, 0), row_type(0, 0, 1, 0), row_type(0, 0, 0, 1));
-		}
-
-		template<typename U = Matrix>
-		static U identity(typename std::enable_if<(U::rows_count == 3) && (U::columns_count == 3)>::type* = 0) RESTRICT(amp) {
-			return U(row_type(1, 0, 0), row_type(0, 1, 0), row_type(0, 0, 1));
-		}
-
-		template<typename U = Matrix>
-		static U identity(typename std::enable_if<(U::rows_count == 2) && (U::columns_count == 2)>::type* = 0) RESTRICT(amp) {
-			return U(row_type(1, 0), row_type(0, 1));
-		}
-#endif
-		
-	};*/
-
-	template<typename T, LmSize Rows, LmSize Columns>
-	struct Matrix : public Vector<Vector<T, Columns>, Rows> {
-		typedef Vector<T, Columns> Row;
-		typedef Vector<Vector<T, Columns>, Rows> Base;
-
-		template<typename ... Args, typename = std::enable_if_t<sizeof...(Args) <= Rows>>
+		template<typename ... Args, typename = std::enable_if_t<sizeof...(Args) <= M>>
 		Matrix(const Args& ... rest)  RESTRICT(cpu) : Base{ rest... } {}
 
 		constexpr Matrix() RESTRICT(cpu, amp) {}
 
 		Matrix(const Matrix& m)  RESTRICT(cpu, amp) {
-			for (LmSize i = 0; i < Rows; ++i) {
+			for (LmSize i = 0; i < M; ++i) {
 				data[i] = m.data[i];
 			}
 		}
-		Matrix(const Vector<Vector<T, Columns>, Rows>& m)  RESTRICT(cpu, amp) {
-			for (LmSize i = 0; i < Rows; ++i) {
+		Matrix(const Vector<Vector<T, N>, M>& m)  RESTRICT(cpu, amp) {
+			for (LmSize i = 0; i < M; ++i) {
 				data[i] = m.data[i];
 			}
 		}
 
 		auto getColumn(LmSize id) const RESTRICT(cpu, amp) {
-			Vector<T, Rows> result;
-			for (LmSize i = 0; i < Rows; ++i) {
+			Vector<T, M> result;
+			for (LmSize i = 0; i < M; ++i) {
 				result[i] = data[i][id];
 			}
 			return result;
@@ -85,17 +40,17 @@ namespace lm {
 
 		static Matrix identity() RESTRICT(cpu, amp) {
 			Matrix result{};
-			for (LmSize y = 0; y < Rows; ++y) {
+			for (LmSize y = 0; y < M; ++y) {
 				result[y][y] = static_cast<T>(1);
 			}
 			return result;
 		}
 
-		template<typename T2, LmSize Rows2, LmSize Columns2, typename = typename std::enable_if_t<(Rows2 <= Rows) && (Columns2 <= Columns)>>
-		operator Matrix<T2, Rows2, Columns2>() const RESTRICT(cpu, amp) {
-			Matrix<T2, Rows2, Columns2> result;
-			for (LmSize y = 0; y < Rows2; ++y){
-				for (LmSize x = 0; x < Columns2; ++x) {
+		template<typename T2, LmSize M2, LmSize N2, typename = typename std::enable_if_t<(M2 <= M) && (N2 <= N)>>
+		operator Matrix<T2, M2, N2>() const RESTRICT(cpu, amp) {
+			Matrix<T2, M2, N2> result;
+			for (LmSize y = 0; y < M2; ++y){
+				for (LmSize x = 0; x < N2; ++x) {
 					result[y][x] = this->data[y][x];
 				}
 			}
@@ -108,6 +63,9 @@ namespace lm {
 		auto result = Matrix<MultiplyType<T1, T2>, M, N2>{};
 		for (LmSize y = 0; y < M; ++y) {
 			for (LmSize x = 0; x < N2; ++x) {
+
+				result[y][x] = static_cast<std::remove_reference_t<decltype(result[y][x])>>(0);
+
 				for (LmSize i = 0; i < N; ++i) {
 					result[y][x] += left[y][i] * right[i][x];
 				}
@@ -137,6 +95,20 @@ namespace lm {
 			(m[0][0] * m[1][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2] + m[0][1] * m[1][2] * m[2][0]) -
 			(m[0][2] * m[1][1] * m[2][0] + m[0][1] * m[1][0] * m[2][2] + m[1][2] * m[2][1] * m[0][0]);
 	}
+
+	template<typename T, LmSize M, LmSize N>
+	Matrix<T, N, M> transpose(const Matrix<T, M, N>& v) RESTRICT(cpu, amp) {
+		Matrix<T, N, M> result;
+
+		for (LmSize y = 0; y < M; ++y) {
+			for (LmSize x = 0; x < N; ++x) {
+				result[x][y] = v[y][x];
+			}
+		}
+
+		return result;
+	}
+	
 
 	template<typename T>
 	Matrix<T, 4, 4> inverse(const Matrix<T, 4, 4>& u, bool affine) RESTRICT(cpu, amp) {

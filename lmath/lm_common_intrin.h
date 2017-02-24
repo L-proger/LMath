@@ -40,60 +40,69 @@ namespace lm {
 		Vector<T, 3> up = lm::normalize(lm::cross(forward, right));
 
 		return Matrix<T, 4, 4>(
-			Vector<T, 4>(right.x, up.x, forward.x, static_cast<T>(0)),
-			Vector<T, 4>(right.y, up.y, forward.y, static_cast<T>(0)),
-			Vector<T, 4>(right.z, up.z, forward.z, static_cast<T>(0)),
+			Vector<T, 4>(right[0], up[0], forward[0], static_cast<T>(0)),
+			Vector<T, 4>(right[1], up[1], forward[1], static_cast<T>(0)),
+			Vector<T, 4>(right[2], up[2], forward[2], static_cast<T>(0)),
 			Vector<T, 4>(-lm::dot(right, position), -lm::dot(up, position), -lm::dot(forward, position), static_cast<T>(1))
 		);
 	}
 
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4_perspective(T fov, T aspect, T near_clip, T far_clip) {
+	static inline Matrix<T, 4, 4> matrix4x4Perspective(T fov, T aspect, T near_clip, T far_clip) {
 		Matrix<T, 4, 4> result;
-		float yScale = static_cast<T>(1) / (std::tan(fov / static_cast<T>(2)));
-		result.rows[0] = Vector<T, 4>(yScale / aspect, 0, 0, 0);
-		result.rows[1] = Vector<T, 4>(0, yScale, 0, 0);
-		result.rows[2] = Vector<T, 4>(0, 0, far_clip / (far_clip - near_clip), 1);
-		result.rows[3] = Vector<T, 4>(0, 0, (-near_clip * far_clip) / (far_clip - near_clip), 0);
+
+		auto zero = static_cast<T>(0);
+		auto one = static_cast<T>(1);
+		auto two = static_cast<T>(2);
+
+		auto yScale = one / (lm::tan(fov / two));
+		result[0] = Vector<T, 4>(yScale / aspect, zero, zero, zero);
+		result[1] = Vector<T, 4>(zero, yScale, zero, zero);
+		result[2] = Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), one);
+		result[3] = Vector<T, 4>(zero, zero, (-near_clip * far_clip) / (far_clip - near_clip), zero);
 		return result;
 	}
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4_rotation(float angle) {
+	static inline Matrix<T, 4, 4> matrix4x4Rotation(float angle) {
 		Matrix<T, 4, 4> matrix;
-		auto cos_angle = std::cos(angle); //num2
-		auto sin_angle = std::sin(angle); //num
+		auto cos_angle = lm::cos(angle); //num2
+		auto sin_angle = lm::sin(angle); //num
 
 		auto zero = static_cast<T>(0);
-		auto one = static_cast<T>(0);
+		auto one = static_cast<T>(1);
 
-		matrix.rows[0] = Vector<T, 4>(cos_angle, 0, -sin_angle, 0);
-		matrix.rows[1] = Vector<T, 4>(0,1,0,0);
-		matrix.rows[2] = Vector<T, 4>(sin_angle, 0, cos_angle, 0);
-		matrix.rows[3] = Vector<T, 4>(0,0,0,1);
+		matrix.rows[0] = Vector<T, 4>(cos_angle, zero, -sin_angle, zero);
+		matrix.rows[1] = Vector<T, 4>(zero, one, zero, zero);
+		matrix.rows[2] = Vector<T, 4>(sin_angle, zero, cos_angle, zero);
+		matrix.rows[3] = Vector<T, 4>(zero, zero, zero, one);
 
 		return matrix;
 	}
 
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4_rotation(const lm::Quaternion<T>& q) {
-		float num1 = q.x * q.x;
-		float num2 = q.y * q.y;
-		float num3 = q.z * q.z;
-		float num4 = q.x * q.y;
-		float num5 = q.z * q.w;
-		float num6 = q.z * q.x;
-		float num7 = q.y * q.w;
-		float num8 = q.y * q.z;
-		float num9 = q.x * q.w;
+	static inline Matrix<T, 4, 4> matrix4x4Rotation(const lm::Quaternion<T>& q) {
+		auto num1 = q.x * q.x;
+		auto num2 = q.y * q.y;
+		auto num3 = q.z * q.z;
+		auto num4 = q.x * q.y;
+		auto num5 = q.z * q.w;
+		auto num6 = q.z * q.x;
+		auto num7 = q.y * q.w;
+		auto num8 = q.y * q.z;
+		auto num9 = q.x * q.w;
+
+		auto zero = static_cast<T>(0);
+		auto one = static_cast<T>(1);
+		auto two = static_cast<T>(2);
 		
 		return Matrix<T, 4, 4>(
-			Vector<T, 4>(1.0f - 2.0f * (num2 + num3), 2.0f * (num4 + num5), 2.0f * (num6 - num7), 0),
-			Vector<T, 4>(2.0f * (num4 - num5), 1.0f - 2.0f * (num3 + num1), 2.0f * (num8 + num9), 0),
-			Vector<T, 4>(2.0f * (num6 + num7), 2.0f * (num8 - num9), 1.0f - 2.0f * (num2 + num1), 0),
-			Vector<T, 4>(0,0,0,1));
+			Vector<T, 4>(one - two * (num2 + num3), two * (num4 + num5), two * (num6 - num7), zero),
+			Vector<T, 4>(two * (num4 - num5), one - two * (num3 + num1), two * (num8 + num9), zero),
+			Vector<T, 4>(two * (num6 + num7), two * (num8 - num9), one - two * (num2 + num1), zero),
+			Vector<T, 4>(zero, zero, zero, one));
 	}
 
 	template<typename T, typename U = T>
