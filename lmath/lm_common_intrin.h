@@ -40,10 +40,10 @@ namespace lm {
 		Vector<T, 3> up = lm::normalize(lm::cross(forward, right));
 
 		return Matrix<T, 4, 4>(
-			Vector<T, 4>(right[0], up[0], forward[0], static_cast<T>(0)),
-			Vector<T, 4>(right[1], up[1], forward[1], static_cast<T>(0)),
-			Vector<T, 4>(right[2], up[2], forward[2], static_cast<T>(0)),
-			Vector<T, 4>(-lm::dot(right, position), -lm::dot(up, position), -lm::dot(forward, position), static_cast<T>(1))
+			Vector<T, 4>(right[0], right[1], right[2], -lm::dot(right, position)),
+			Vector<T, 4>(up[0], up[1], up[2], -lm::dot(up, position)),
+			Vector<T, 4>(forward[0], forward[1], forward[2], -lm::dot(forward, position)),
+			Vector<T, 4>(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1))
 		);
 	}
 
@@ -59,8 +59,8 @@ namespace lm {
 		auto yScale = one / (lm::tan(fov / two));
 		result[0] = Vector<T, 4>(yScale / aspect, zero, zero, zero);
 		result[1] = Vector<T, 4>(zero, yScale, zero, zero);
-		result[2] = Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), one);
-		result[3] = Vector<T, 4>(zero, zero, (-near_clip * far_clip) / (far_clip - near_clip), zero);
+		result[2] = Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), (-near_clip * far_clip) / (far_clip - near_clip));
+		result[3] = Vector<T, 4>(zero, zero,one, zero);
 		return result;
 	}
 
@@ -73,10 +73,10 @@ namespace lm {
 		auto zero = static_cast<T>(0);
 		auto one = static_cast<T>(1);
 
-		matrix.rows[0] = Vector<T, 4>(cos_angle, zero, -sin_angle, zero);
+		matrix.rows[0] = Vector<T, 4>(cos_angle, zero, sin_angle, zero);
 		matrix.rows[1] = Vector<T, 4>(zero, one, zero, zero);
-		matrix.rows[2] = Vector<T, 4>(sin_angle, zero, cos_angle, zero);
-		matrix.rows[3] = Vector<T, 4>(zero, zero, zero, one);
+		matrix.rows[2] = Vector<T, 4>(-sin_angle, zero, cos_angle, zero);
+		matrix.rows[3] = Vector<T, 4>(zero, zero, zero,one);
 
 		return matrix;
 	}
@@ -99,9 +99,9 @@ namespace lm {
 		auto two = static_cast<T>(2);
 		
 		return Matrix<T, 4, 4>(
-			Vector<T, 4>(one - two * (num2 + num3), two * (num4 + num5), two * (num6 - num7), zero),
-			Vector<T, 4>(two * (num4 - num5), one - two * (num3 + num1), two * (num8 + num9), zero),
-			Vector<T, 4>(two * (num6 + num7), two * (num8 - num9), one - two * (num2 + num1), zero),
+			Vector<T, 4>(one - two * (num2 + num3), two * (num4 - num5), two * (num6 + num7), zero),
+			Vector<T, 4>(two * (num4 + num5), one - two * (num3 + num1), two * (num8 - num9), zero),
+			Vector<T, 4>(two * (num6 - num7), two * (num8 + num9), one - two * (num2 + num1), zero),
 			Vector<T, 4>(zero, zero, zero, one));
 	}
 
@@ -122,10 +122,10 @@ namespace lm {
 	template<typename T, typename U = T>
 	static inline Matrix<U, 4, 4> matrix4x4_translation(T x, T y, T z) {
 		return Matrix<U, 4, 4>(
-			Vector<U, 4>(1, 0, 0, 0),
-			Vector<U, 4>(0, 1, 0, 0),
-			Vector<U, 4>(0, 0, 1, 0),
-			Vector<U, 4>(x, y, z, 1));
+			Vector<U, 4>(1, 0, 0, x),
+			Vector<U, 4>(0, 1, 0, y),
+			Vector<U, 4>(0, 0, 1, z),
+			Vector<U, 4>(0, 0, 0, 1));
 	}
 
 	template<typename T, typename U = T>
