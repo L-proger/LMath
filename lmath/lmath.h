@@ -9,6 +9,7 @@
 #include "lm_quaternion.h"
 #include "lm_quaternion_intrin.h"
 #include "lm_stdio.h"
+#include "lm_half.h"
 
 
 #endif // lm_h__

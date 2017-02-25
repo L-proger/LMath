@@ -16,10 +16,10 @@ namespace lm{
         uint16_t data;
     public:
         bool isNan(){
-            return ((data & 0x7c00) == 0x7c00) && ((data & 0x3ff) == 0);
+            return ((data & 0x7c00) == 0x7c00) && ((data & 0x3ff) != 0);
         }
         bool isInf(){
-            return ((data & 0x7c00) == 0x7c00) && ((data & 0x3ff) != 0);
+            return ((data & 0x7c00) == 0x7c00) && ((data & 0x3ff) == 0);
         }
         bool isSubnormal(){
             return ((data & 0x7c00) == 0) && ((data & 0x3ff) != 0);
