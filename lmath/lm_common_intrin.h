@@ -23,36 +23,36 @@ namespace lm {
 
 	template<typename T>
 	static inline Matrix<T, 4, 4> matrix4x4LookatLh(const Vector<T, 3>& position, const Vector<T, 3>& target, const Vector<T, 3>& up_direction) {
-		Vector<T, 3> forward = lm::normalize(target - position);//res1
-		Vector<T, 3> right = lm::normalize(lm::cross(up_direction, forward));//res2
-		Vector<T, 3> up = lm::normalize(lm::cross(forward, right));
+		auto forward = lm::normalize(target - position);
+		auto right = lm::normalize(lm::cross(up_direction, forward));
+		auto up = lm::normalize(lm::cross(forward, right));
 
-		return Matrix<T, 4, 4>(
-			Vector<T, 4>(right[0], right[1], right[2], -lm::dot(right, position)),
-			Vector<T, 4>(up[0], up[1], up[2], -lm::dot(up, position)),
-			Vector<T, 4>(forward[0], forward[1], forward[2], -lm::dot(forward, position)),
-			Vector<T, 4>(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1))
-		);
+		auto zero = DefaultValues<T>::zero();
+		auto one = DefaultValues<T>::one();
+
+		return Matrix<T, 4, 4>{
+			Vector<T, 4>(right, -lm::dot(right, position)),
+			Vector<T, 4>(up, -lm::dot(up, position)),
+			Vector<T, 4>(forward, -lm::dot(forward, position)),
+			Vector<T, 4>(zero, zero, zero, one)
+		};
 	}
 
 	template<typename T>
 	static inline Matrix<T, 4, 4> matrix4x4Perspective(T fov, T aspect, T near_clip, T far_clip) {
-		Matrix<T, 4, 4> result;
-
 		auto zero = DefaultValues<T>::zero();
 		auto one = DefaultValues<T>::one();
 		auto two = DefaultValues<T>::two();
-
 		auto yScale = one / (lm::tan(fov / two));
-		result[0] = Vector<T, 4>(yScale / aspect, zero, zero, zero);
-		result[1] = Vector<T, 4>(zero, yScale, zero, zero);
-		result[2] = Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), (-near_clip * far_clip) / (far_clip - near_clip));
-		result[3] = Vector<T, 4>(zero, zero, one, zero);
-		return result;
+		return Matrix<T, 4, 4>(
+			Vector<T, 4>(yScale / aspect, zero, zero, zero),
+			Vector<T, 4>(zero, yScale, zero, zero),
+			Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), (-near_clip * far_clip) / (far_clip - near_clip)),
+			Vector<T, 4>(zero, zero, one, zero));
 	}
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4Rotation(float angle) {
+	static inline Matrix<T, 4, 4> matrix4x4RotationY(float angle) {
 		auto cosAngle = lm::cos(angle);
 		auto sinAngle = lm::sin(angle);
 
@@ -65,7 +65,7 @@ namespace lm {
 
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4Rotation(const lm::Quaternion<T>& q) {
+	static inline Matrix<T, 4, 4> matrix4x4RotationY(const lm::Quaternion<T>& q) {
 		auto num1 = q.x * q.x;
 		auto num2 = q.y * q.y;
 		auto num3 = q.z * q.z;
@@ -77,8 +77,8 @@ namespace lm {
 		auto num9 = q.x * q.w;
 
 		auto zero = DefaultValues<T>::zero();
-		auto one = DefaultValues<T>::one();
-		auto two = DefaultValues<T>::two();
+		auto one  = DefaultValues<T>::one();
+		auto two  = DefaultValues<T>::two();
 		
 		return Matrix<T, 4, 4>(
 			Vector<T, 4>(one - two * (num2 + num3), two * (num4 - num5), two * (num6 + num7), zero),

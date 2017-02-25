@@ -58,7 +58,7 @@ namespace lm {
 		for (LmSize y = 0; y < M; ++y) {
 			for (LmSize x = 0; x < N2; ++x) {
 
-				result[y][x] = static_cast<std::remove_reference_t<decltype(result[y][x])>>(0);
+				result[y][x] = DefaultValues<std::remove_reference_t<decltype(result[y][x])>>::zero();
 
 				for (LmSize i = 0; i < N; ++i) {
 					result[y][x] += left[y][i] * right[i][x];
