@@ -39,26 +39,28 @@ namespace lm {
 	static inline Matrix<T, 4, 4> matrix4x4Perspective(T fov, T aspect, T near_clip, T far_clip) {
 		Matrix<T, 4, 4> result;
 
-		auto yScale = one<T> / (lm::tan(fov / two<T>));
-		result[0] = Vector<T, 4>(yScale / aspect, zero<T>, zero<T>, zero<T>);
-		result[1] = Vector<T, 4>(zero<T>, yScale, zero<T>, zero<T>);
-		result[2] = Vector<T, 4>(zero<T>, zero<T>, far_clip / (far_clip - near_clip), (-near_clip * far_clip) / (far_clip - near_clip));
-		result[3] = Vector<T, 4>(zero<T>, zero<T>, one<T>, zero<T>);
+		auto zero = DefaultValues<T>::zero();
+		auto one = DefaultValues<T>::one();
+		auto two = DefaultValues<T>::two();
+
+		auto yScale = one / (lm::tan(fov / two));
+		result[0] = Vector<T, 4>(yScale / aspect, zero, zero, zero);
+		result[1] = Vector<T, 4>(zero, yScale, zero, zero);
+		result[2] = Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), (-near_clip * far_clip) / (far_clip - near_clip));
+		result[3] = Vector<T, 4>(zero, zero, one, zero);
 		return result;
 	}
 
 	template<typename T>
 	static inline Matrix<T, 4, 4> matrix4x4Rotation(float angle) {
-		Matrix<T, 4, 4> matrix;
-		auto cos_angle = lm::cos(angle); //num2
-		auto sin_angle = lm::sin(angle); //num
+		auto cosAngle = lm::cos(angle);
+		auto sinAngle = lm::sin(angle);
 
-		matrix.rows[0] = Vector<T, 4>(cos_angle, zero<T>, sin_angle, zero<T>);
-		matrix.rows[1] = Vector<T, 4>(zero<T>, one<T>, zero<T>, zero<T>);
-		matrix.rows[2] = Vector<T, 4>(-sin_angle, zero<T>, cos_angle, zero<T>);
-		matrix.rows[3] = Vector<T, 4>(zero<T>, zero<T>, zero<T>, one<T>);
-
-		return matrix;
+		return Matrix<T, 4, 4>(
+			Vector<T, 4>(cosAngle, zero, sinAngle, zero),
+			Vector<T, 4>(zero, one, zero, zero),
+			Vector<T, 4>(-sinAngle, zero, cosAngle, zero),
+			Vector<T, 4>(zero, zero, zero, one));;
 	}
 
 
@@ -73,21 +75,29 @@ namespace lm {
 		auto num7 = q.y * q.w;
 		auto num8 = q.y * q.z;
 		auto num9 = q.x * q.w;
+
+		auto zero = DefaultValues<T>::zero();
+		auto one = DefaultValues<T>::one();
+		auto two = DefaultValues<T>::two();
 		
 		return Matrix<T, 4, 4>(
-			Vector<T, 4>(one<T> - two<T> * (num2 + num3), two<T> * (num4 - num5), two<T> * (num6 + num7), zero<T>),
-			Vector<T, 4>(two<T> * (num4 + num5), one<T> - two<T> * (num3 + num1), two<T> * (num8 - num9), zero<T>),
-			Vector<T, 4>(two<T> * (num6 - num7), two<T> * (num8 + num9), one<T> - two<T> * (num2 + num1), zero<T>),
-			Vector<T, 4>(zero<T>, zero<T>, zero<T>, one<T>));
+			Vector<T, 4>(one - two * (num2 + num3), two * (num4 - num5), two * (num6 + num7), zero),
+			Vector<T, 4>(two * (num4 + num5), one - two * (num3 + num1), two * (num8 - num9), zero),
+			Vector<T, 4>(two * (num6 - num7), two * (num8 + num9), one - two * (num2 + num1), zero),
+			Vector<T, 4>(zero, zero, zero, one));
 	}
 
 	template<typename T, typename U = T>
 	static inline Matrix<U, 4, 4> matrix4x4Scale(T sx, T sy, T sz) {
+
+		auto zero = DefaultValues<T>::zero();
+		auto one = DefaultValues<T>::one();
+
 		return Matrix<U, 4, 4>(
-			Vector<U, 4>(sx, zero<T>, zero<T>, zero<T>),
-			Vector<U, 4>(zero<T>, sy, zero<T>, zero<T>),
-			Vector<U, 4>(zero<T>, zero<T>, sz, zero<T>),
-			Vector<U, 4>(zero<T>, zero<T>, zero<T>, one<T>));
+			Vector<U, 4>(sx, zero, zero, zero),
+			Vector<U, 4>(zero, sy, zero, zero),
+			Vector<U, 4>(zero, zero, sz, zero),
+			Vector<U, 4>(zero, zero, zero, one));
 	}
 
 	template<typename T, typename U = T>
@@ -97,11 +107,14 @@ namespace lm {
 
 	template<typename T, typename U = T>
 	static inline Matrix<U, 4, 4> matrix4x4Translation(T x, T y, T z) {
+		auto zero = DefaultValues<T>::zero();
+		auto one = DefaultValues<T>::one();
+
 		return Matrix<U, 4, 4>(
-			Vector<U, 4>(one<T>, zero<T>, zero<T>, x),
-			Vector<U, 4>(zero<T>, one<T>, zero<T>, y),
-			Vector<U, 4>(zero<T>, zero<T>, one<T>, z),
-			Vector<U, 4>(zero<T>, zero<T>, zero<T>, one<T>));
+			Vector<U, 4>(one, zero, zero, x),
+			Vector<U, 4>(zero, one, zero, y),
+			Vector<U, 4>(zero, zero, one, z),
+			Vector<U, 4>(zero, zero, zero, one));
 	}
 
 	template<typename T, typename U = T>

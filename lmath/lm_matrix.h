@@ -18,16 +18,9 @@ namespace lm {
 
 		constexpr Matrix() RESTRICT(cpu, amp) {}
 
-		Matrix(const Matrix& m)  RESTRICT(cpu, amp) {
-			for (LmSize i = 0; i < M; ++i) {
-				data[i] = m.data[i];
-			}
-		}
-		Matrix(const Vector<Vector<T, N>, M>& m)  RESTRICT(cpu, amp) {
-			for (LmSize i = 0; i < M; ++i) {
-				data[i] = m.data[i];
-			}
-		}
+		Matrix(const Matrix& m)  RESTRICT(cpu, amp) : Base{ (const Base&)m } {}
+
+		Matrix(const Vector<Vector<T, N>, M>& m)  RESTRICT(cpu, amp) : Base{ m } {}
 
 		auto getColumn(LmSize id) const RESTRICT(cpu, amp) {
 			Vector<T, M> result;
@@ -39,7 +32,8 @@ namespace lm {
 
 
 		static Matrix identity() RESTRICT(cpu, amp) {
-			Matrix result{};
+			auto zero = DefaultValues<T>::zero();
+			Matrix result(zero);
 			for (LmSize y = 0; y < M; ++y) {
 				result[y][y] = static_cast<T>(1);
 			}

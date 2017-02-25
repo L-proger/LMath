@@ -89,9 +89,6 @@ namespace lm {
 		template<typename TA, typename = std::enable_if_t<N == 4>>
 		constexpr Vector(const Vector<TA, 3>& a, const TA& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], a[2], b } {}
 
-
-
-
 		template<typename Arg>
 		Vector(Arg arg) RESTRICT(cpu, amp) {
 			for (LmSize i = 0; i < N; ++i) {

@@ -23,6 +23,20 @@ namespace lm {
 #endif
 
 	template<typename T>
+	struct DefaultValues {
+		static T zero()  RESTRICT(cpu, amp) {
+			return static_cast<T>(0);
+		}
+		static T one()  RESTRICT(cpu, amp) {
+			return static_cast<T>(1);
+		}
+		static T two()  RESTRICT(cpu, amp) {
+			return static_cast<T>(2);
+		}
+	};
+
+
+	template<typename T>
 	T zero = static_cast<T>(0);
 	template<typename T>
 	T one = static_cast<T>(1);
