@@ -175,6 +175,8 @@ namespace lm {
 			return (*this) / length();
 		}
 
+		bool equals(const Vector& other, T tolerance) const;
+
 		VECTOR_ARITHMETIC_OP(+);
 		VECTOR_ARITHMETIC_OP(-);
 		VECTOR_ARITHMETIC_OP(*);
@@ -373,8 +375,6 @@ namespace lm {
 		return lm::min(lm::max(a, minValue), maxValue);
 	}
 
-
-
 	namespace impl {
 		template<typename T>
 		struct degrees {
@@ -396,6 +396,22 @@ namespace lm {
 	template<typename T>
 	auto degrees(const T& a) RESTRICT(cpu, amp) {
 		return impl::degrees<T>::exec(a);
+	}
+
+
+	template<typename T, LmSize N>
+	bool Vector<T, N>::equals(const Vector<T, N>& other, T tolerance) const RESTRICT(cpu, amp) {
+		for (LmSize i = 0; i < N; ++i) {
+			if (lm::abs(data[i] - other[i]) >= tolerance) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	template<typename T, LmSize N>
+	bool equals(const Vector<T, N>& a, const Vector<T, N>& b, T tolerance) RESTRICT(cpu, amp) {
+		return a.equals(b);
 	}
 
 
