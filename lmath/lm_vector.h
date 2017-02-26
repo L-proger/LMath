@@ -344,6 +344,8 @@ namespace lm {
 	MATH_VECTOR_FUNC_NO_PARAM(exp);
 	MATH_VECTOR_FUNC_NO_PARAM(log);
 
+	MATH_VECTOR_FUNC_NO_PARAM(sqrt);
+
 #ifdef min
 #undef min
 #endif

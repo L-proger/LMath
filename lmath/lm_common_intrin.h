@@ -68,16 +68,16 @@ namespace lm {
 
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4RotationY(const lm::Quaternion<T>& q) {
-		auto num1 = q.x * q.x;
-		auto num2 = q.y * q.y;
-		auto num3 = q.z * q.z;
-		auto num4 = q.x * q.y;
-		auto num5 = q.z * q.w;
-		auto num6 = q.z * q.x;
-		auto num7 = q.y * q.w;
-		auto num8 = q.y * q.z;
-		auto num9 = q.x * q.w;
+	static inline Matrix<T, 4, 4> matrix4x4RotationQuaternion(const lm::Quaternion<T>& q) {
+		auto num1 = q[0] * q[0];
+		auto num2 = q[1] * q[1];
+		auto num3 = q[2] * q[2];
+		auto num4 = q[0] * q[1];
+		auto num5 = q[2] * q[3];
+		auto num6 = q[2] * q[0];
+		auto num7 = q[1] * q[3];
+		auto num8 = q[1] * q[2];
+		auto num9 = q[0] * q[3];
 
 		auto zero = DefaultValues<T>::zero();
 		auto one  = DefaultValues<T>::one();

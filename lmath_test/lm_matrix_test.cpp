@@ -18,5 +18,16 @@ public:
 		Assert::IsTrue(xp.equals(lm::float3::unitX(), 0.001f));
 		Assert::IsTrue(xn.equals(lm::float3::unitX() * -1.0f, 0.001f));
 	}
+
+	TEST_METHOD(lm_matrix_rotation_quaternion) {
+		auto m0 = lm::matrix4x4RotationY<float>(lm::pi_f / 2.0f);
+		auto m1 = matrix4x4RotationQuaternion(lm::Quaternion_f::angleAxis(lm::pi_f / 2.0f, float3::unitY()));
+		
+		for (LmSize y = 0; y < 4; ++y) {
+			for (LmSize x = 0; x < 4; ++x) {
+				Assert::AreEqual(m0[y][x], m1[y][x], 0.0001f);
+			}
+		}
+	}
 	};
 }

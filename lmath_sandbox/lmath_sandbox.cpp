@@ -64,6 +64,7 @@ static void test_float4() restrict(cpu, amp) {
 */
 int main() {
 
+	
 
 	float4x4 ta;
 	float4x4 tb;
