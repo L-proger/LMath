@@ -63,11 +63,16 @@ static void test_float4() restrict(cpu, amp) {
 }
 */
 int main() {
+
+
 	float4x4 ta;
 	float4x4 tb;
 	ta = tb;
 
 	float4 pp(1.0f, 2.0f, 3.0f, 4.0f);
+	float4 pn = -pp;
+
+	float* pf = (float*)pn;
 
 	pp.slice<1, 2>() = float2(7.0f, 8.0f);
 

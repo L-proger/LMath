@@ -154,7 +154,7 @@ namespace lm {
 
 		template<typename TR = MultiplyType<T>>
 		auto lengthSquared() const RESTRICT(cpu, amp) {
-			TR result = static_cast<TR>(0);
+			TR result = DefaultValues<TR>::zero();
 			for (LmSize i = 0; i < N; ++i) {
 				result += data[i] * data[i];
 			}
@@ -182,19 +182,49 @@ namespace lm {
 		VECTOR_ARITHMETIC_OP(*);
 		VECTOR_ARITHMETIC_OP(/);
 
-		T& operator [] (size_t id) RESTRICT(cpu, amp) {
+		auto operator-() const {
+			Vector<typename std::decay<decltype(-data[0])>::type, Size> result;
+			for (LmSize i = 0; i < Size; ++i) {
+				result[i] = -data[i];
+			}
+			return result;
+		}
+
+		template<typename T2>
+		bool operator==(const Vector<T2, Size>& right) const {
+			for (LmSize i = 0; i < Size; ++i) {
+				if (data[i] != right[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		template<typename T2>
+		bool operator!=(const Vector<T2, Size>& right) const {
+			for (LmSize i = 0; i < Size; ++i) {
+				if (data[i] != right[i]) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		explicit operator T*() RESTRICT(cpu, amp) {
+			return Size == 0 ? nullptr : &data[0];
+		}
+		explicit operator const T*() const  RESTRICT(cpu, amp) {
+			return Size == 0 ? nullptr : &data[0];
+		}
+		
+		T& operator [] (LmSize id) RESTRICT(cpu, amp) {
 			return data[id];
 		}
-		const T& operator [] (size_t id) const RESTRICT(cpu, amp) {
+		const T& operator [] (LmSize id) const RESTRICT(cpu, amp) {
 			return data[id];
 		}
 
 	};
-
-	template<typename T1, typename T2, LmSize N>
-	auto distance(const Vector<T1, N>& v1, const Vector<T2, N>& v2) RESTRICT(cpu, amp) {
-		return (v2 - v1).length();
-	}
 
 	template<typename T, typename U>
 	auto cross(const Vector<T, 3>& a, const Vector<U, 3>& b)RESTRICT(cpu, amp) {
@@ -206,7 +236,7 @@ namespace lm {
 
 	template<typename T1, typename T2, LmSize N>
 	auto dot(const Vector<T1, N>& left, const Vector<T2, N>& right)RESTRICT(cpu, amp) {
-		auto result = (MultiplyType<T1, T2>)0;
+		auto result = DefaultValues<MultiplyType<T1, T2>>::zero();
 		for (LmSize i = 0; i < N; ++i) {
 			result += left[i] * right[i];
 		}
@@ -221,13 +251,13 @@ namespace lm {
 
 	template<typename TA, typename TB, LmSize N, typename TC>
 	auto lerp(const Vector<TA, N>& a, const Vector<TB, N>& b, TC c)RESTRICT(cpu, amp) {
-		return a * (static_cast<TC>(1) - c) + b * c;
+		return a * (DefaultValues<TC>::one() - c) + b * c;
 	}
 
 	template<typename T, LmSize N>
 	auto all(const Vector<T, N>& v) RESTRICT(cpu, amp) {
 		for (LmSize i = 0; i < N; ++i) {
-			if (v[i] == static_cast<T>(0)) {
+			if (v[i] == DefaultValues<T>::zero()) {
 				return false;
 			}
 		}
@@ -244,10 +274,7 @@ namespace lm {
 		return false;
 	}
 
-
 #define UNPACK(...) __VA_ARGS__
-
-
 
 #define MATH_VECTOR_FUNC(_Name, _TemplateParams, _TemplateParamsNames, _ExecParams, _Params) \
 	namespace impl { \
@@ -347,6 +374,28 @@ namespace lm {
 		return impl::min<T>::exec(a, b);
 	}
 
+	template<typename T, LmSize N, typename = std::enable_if_t<(N > 0)>>
+	auto min(const Vector<T, N>& v) RESTRICT(cpu, amp) {
+		LmSize id = 0;
+		for (LmSize i = 1; i < N; ++i) {
+			if (v[i] < v[id]) {
+				id = i;
+			}
+		}
+		return v[id];
+	}
+
+	template<typename T, LmSize N, typename = std::enable_if_t <(N > 0)>>
+		auto max(const Vector<T, N>& v) RESTRICT(cpu, amp) {
+		LmSize id = 0;
+		for (LmSize i = 1; i < N; ++i) {
+			if (v[i] > v[id]) {
+				id = i;
+			}
+		}
+		return v[id];
+	}
+
 	namespace impl {
 		template<typename T>
 		struct max {
@@ -414,6 +463,10 @@ namespace lm {
 		return a.equals(b);
 	}
 
+	template<typename T1, typename T2, LmSize N>
+	auto distance(const Vector<T1, N>& v1, const Vector<T2, N>& v2) RESTRICT(cpu, amp) {
+		return (v2 - v1).length();
+	}
 
 	typedef Vector<float, 2> float2;
 	typedef Vector<float, 3> float3;

@@ -52,9 +52,12 @@ namespace lm {
 	}
 
 	template<typename T>
-	static inline Matrix<T, 4, 4> matrix4x4RotationY(float angle) {
-		auto cosAngle = lm::cos(angle);
-		auto sinAngle = lm::sin(angle);
+	static inline Matrix<T, 4, 4> matrix4x4RotationY(float angleInRadians) {
+		auto cosAngle = lm::cos(angleInRadians);
+		auto sinAngle = lm::sin(angleInRadians);
+
+		auto zero = DefaultValues<T>::zero();
+		auto one = DefaultValues<T>::one();
 
 		return Matrix<T, 4, 4>(
 			Vector<T, 4>(cosAngle, zero, sinAngle, zero),

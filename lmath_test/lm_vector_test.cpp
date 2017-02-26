@@ -8,6 +8,58 @@ using namespace lm;
 namespace lmath_test {
 	TEST_CLASS(lm_vector_test_class) {
 public:
+	TEST_METHOD(lm_vector_test_min) {
+		Assert::IsTrue(lm::min(1.0f, 2.0f) == 1.0f);
+		Assert::IsTrue(lm::min(2.0f, 1.0f) == 1.0f);
+
+		float3 v1(1.0f, 2.0f, 3.0f);
+		float3 v2(-5.0f, 0.0f, 5.0f);
+
+		const float epsilon = 0.001f;
+		Assert::IsTrue(lm::min(v1, v2).equals(float3(-5.0f, 0.0f, 3.0f), epsilon));
+		Assert::IsTrue(lm::min(v2, v1).equals(float3(-5.0f, 0.0f, 3.0f), epsilon));
+		Assert::IsTrue(lm::max(v1, v2).equals(float3(1.0f, 2.0f, 5.0f), epsilon));
+		Assert::IsTrue(lm::max(v2, v1).equals(float3(1.0f, 2.0f, 5.0f), epsilon));
+
+		Assert::AreEqual(1.0f, lm::min(v1), epsilon);
+		Assert::AreEqual(-5.0f, lm::min(v2), epsilon);
+
+		Assert::AreEqual(3.0f, lm::max(v1), epsilon);
+		Assert::AreEqual(5.0f, lm::max(v2), epsilon);
+	}
+	TEST_METHOD(lm_vector_test_operators) {
+		float3 v1(0.0f);
+		float3 v2(2.0f);
+		double3 v3(0.0);
+
+		Assert::IsTrue(v1 == v1);
+		Assert::IsFalse(v1 != v1);
+
+		Assert::IsFalse(v1 == v2);
+		Assert::IsTrue(v1 != v2);
+
+		Assert::IsTrue(v1 == v3);
+		Assert::IsFalse(v1 != v3);
+		const float epsilon = 0.0001f;
+
+		v2 = v2 / 2.0f;
+		Assert::IsTrue(v2.equals(float3(1.0f), epsilon));
+		v2 = v2 * 5.0f;
+		Assert::IsTrue(v2.equals(float3(5.0f), epsilon));
+		v2 = v2 + 5.0f;
+		Assert::IsTrue(v2.equals(float3(10.0f), epsilon));
+		v2 = v2 - 9.0f;
+		Assert::IsTrue(v2.equals(float3(1.0f), epsilon));
+		v2 *= 3.0f;
+		Assert::IsTrue(v2.equals(float3(3.0f), epsilon));
+		v2 /= 6.0f;
+		Assert::IsTrue(v2.equals(float3(0.5f), epsilon));
+		v2 += 1.5f;
+		Assert::IsTrue(v2.equals(float3(2.0f), epsilon));
+		v2 -= 2.0f;
+		Assert::IsTrue(v2.equals(float3(0.0f), epsilon));
+
+	}
 	TEST_METHOD(lm_vector_test_constructors_N1) {
 		Vector<float, 1> v1{};
 		Vector<float, 1> v2(2.2f);
