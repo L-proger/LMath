@@ -73,6 +73,15 @@ int main() {
 	float4 pp(1.0f, 2.0f, 3.0f, 4.0f);
 	float4 pn = -pp;
 
+	auto& xyzw = pp.xyzw();
+	auto& xyz = pp.xyz();
+	auto& xy = pp.xy();
+
+	auto& yzw = pp.yzw();
+	auto& yz = pp.yz();
+
+	auto& zw = pp.zw();
+
 	auto& xx = pn.x();
 	auto& yy = pn.y();
 	auto& zz = pn.z();

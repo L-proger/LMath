@@ -165,6 +165,20 @@ namespace lm {
 		VECTOR_ITEM_ACCESSOR(z, 2);
 		VECTOR_ITEM_ACCESSOR(w, 3);
 
+#define LINEAR_SLICE_ACCESSOR_BASE(_Name, _Offset, _Length, _Modifier) \
+		template<LmSize SliceOffset = _Offset, LmSize SliceLength = _Length, typename = std::enable_if_t<(SliceOffset == _Offset) && (SliceLength == _Length) &&  ((SliceOffset + SliceLength) <= N)>> \
+		_Modifier auto& _Name () _Modifier { return slice<SliceOffset, SliceLength>(); }
+#define LINEAR_SLICE_ACCESSOR(_Name, _Offset, _Length) LINEAR_SLICE_ACCESSOR_BASE(_Name, _Offset, _Length, ) LINEAR_SLICE_ACCESSOR_BASE(_Name, _Offset, _Length, const)
+
+		LINEAR_SLICE_ACCESSOR(xy, 0, 2);
+		LINEAR_SLICE_ACCESSOR(xyz, 0, 3);
+		LINEAR_SLICE_ACCESSOR(xyzw, 0, 4);
+
+		LINEAR_SLICE_ACCESSOR(yz, 1, 2);
+		LINEAR_SLICE_ACCESSOR(yzw, 1, 3);
+
+		LINEAR_SLICE_ACCESSOR(zw, 2, 2);
+
 		template<typename TR = MultiplyType<T>>
 		auto lengthSquared() const RESTRICT(cpu, amp) {
 			TR result = DefaultValues<TR>::zero();
