@@ -13,7 +13,7 @@ namespace lm {
 	auto operator _Op (const U& divider) const RESTRICT(cpu, amp){ \
 		Vector<DivideType<T, U>, N> result; \
 		for (LmSize i = 0; i < N; ++i) { \
-			result[i] = data[i] _Op divider; \
+			result[i] = this->data[i] _Op divider; \
 		} \
 		return result; \
 	} \
@@ -21,27 +21,32 @@ namespace lm {
 	auto operator _Op (Vector<U, N> divider) const RESTRICT(cpu, amp){ \
 		Vector<DivideType<T, U>, N> result; \
 		for (LmSize i = 0; i < N; ++i) { \
-			result[i] = data[i] _Op divider[i]; \
+			result[i] = this->data[i] _Op divider[i]; \
 		} \
 		return result; \
 	} \
 	template<typename U>\
 	auto operator _Op##= (const U& divider) RESTRICT(cpu, amp){ \
 		for (LmSize i = 0; i < N; ++i) { \
-			data[i] _Op##= divider; \
+			this->data[i] _Op##= divider; \
 		} \
 		return *this; \
 	} \
 	template<typename U> \
 	auto operator _Op##= (Vector<U, N> divider) RESTRICT(cpu, amp){ \
 		for (LmSize i = 0; i < N; ++i) { \
-			data[i] _Op##= divider[i]; \
+			this->data[i] _Op##= divider[i]; \
 		} \
 		return *this; \
 	}
 
 	template<typename T, LmSize N>
-	struct Vector {
+	struct Vector;
+
+
+
+	template<typename T, LmSize N>
+	struct Vector{
 	public:
 		static constexpr LmSize Size = N;
 		typedef T ElementType;
@@ -148,20 +153,29 @@ namespace lm {
 
 		template<LmSize Offset, LmSize Length, typename = std::enable_if_t<Offset + Length <= N>>
 		Vector<T, Length>& slice() {
-			return *((Vector<T, Length>*)&data[Offset]);
+			return *((Vector<T, Length>*)&this->data[Offset]);
 		}
 
+#define VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, _Modifier) template<LmSize S = Size, typename = std::enable_if_t<(S == Size) && (S > _Index)>> \
+		_Modifier auto& _Name () _Modifier { return data[_Index]; }
+#define VECTOR_ITEM_ACCESSOR(_Name, _Index) VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, ) VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, const)
+		//accessors
+		VECTOR_ITEM_ACCESSOR(x, 0);
+		VECTOR_ITEM_ACCESSOR(y, 1);
+		VECTOR_ITEM_ACCESSOR(z, 2);
+		VECTOR_ITEM_ACCESSOR(w, 3);
 
 		template<typename TR = MultiplyType<T>>
 		auto lengthSquared() const RESTRICT(cpu, amp) {
 			TR result = DefaultValues<TR>::zero();
 			for (LmSize i = 0; i < N; ++i) {
-				result += data[i] * data[i];
+				result += this->data[i] * this->data[i];
 			}
 			return result;
 		}
 
 		auto length() const RESTRICT(cpu) {
+			//TODO: change to lm sqrt
 			return std::sqrt(lengthSquared());
 		}
 
@@ -225,6 +239,9 @@ namespace lm {
 		}
 
 	};
+
+
+
 
 	template<typename T, typename U>
 	auto cross(const Vector<T, 3>& a, const Vector<U, 3>& b)RESTRICT(cpu, amp) {

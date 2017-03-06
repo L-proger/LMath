@@ -73,6 +73,16 @@ int main() {
 	float4 pp(1.0f, 2.0f, 3.0f, 4.0f);
 	float4 pn = -pp;
 
+	auto& xx = pn.x();
+	auto& yy = pn.y();
+	auto& zz = pn.z();
+
+	float2 fff;
+
+	auto& xf = fff.x();
+	auto& yf = fff.y();
+	//auto& zf = fff.z();
+
 	float* pf = (float*)pn;
 
 	pp.slice<1, 2>() = float2(7.0f, 8.0f);
