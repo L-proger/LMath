@@ -5,20 +5,41 @@
 using namespace concurrency;
 using namespace lm;
 
+void TestCPU() restrict(cpu) {
+	Vector<uint16_t, 3> p00(0U);
+	Vector<uint16_t, 3> p0;
+	Vector<uint16_t, 5> p1((uint16_t)0U, (uint16_t)1U, (uint16_t)2U, (uint16_t)3U, (uint16_t)4U);
+
+	Vector<uint16_t, 2> p3((uint16_t)0U, (uint16_t)1U);
+	Vector<uint16_t, 3> p4((uint16_t)0U, (uint16_t)1U, (uint16_t)2U);
+	Vector<uint16_t, 4> p5((uint16_t)0U, (uint16_t)1U, (uint16_t)2U, (uint16_t)3U);
+
+	Vector<uint16_t, 2>::unitX();
+	Vector<uint16_t, 3>::unitX();
+	Vector<uint16_t, 4>::unitX();
+
+	auto p3x = p3.y();
+}
+
+void TestAMP() restrict(amp) {
+	Vector<uint32_t, 3> p00(0U);
+
+	Vector<uint32_t, 3> p0;
+	Vector<uint32_t, 5> p1(0U, 1U, 2U, 3U, 4U);
+
+	Vector<uint32_t, 2> p3(0U, 1U);
+	Vector<uint32_t, 3> p4(0U, 1U, 2U);
+	Vector<uint32_t, 4> p5(0U, 1U, 2U, 3U);
+
+	Vector<uint32_t, 2>::unitX();
+	Vector<uint32_t, 3>::unitX();
+	Vector<uint32_t, 4>::unitX();
+}
+
 int main() {
-	//AmpVector<uint16_t, 4, false> fffff;
-	
+	TestCPU();
 
-//	auto fs = sizeof(fffff);
-
-
-	typedef Vector<uint16_t, 3> uint16_3;
-
-	typedef Vector<uint16_t, 3, true> uint16_3_amp;
-
-
-	uint16_3 u3;
-	
+	Vector<uint16_t, 3> p0;
 
 	std::vector<lm::float3> amp_vector;
 	std::vector<lm::float3> amp_result_vector(amp_vector.size());
@@ -29,16 +50,9 @@ int main() {
 
 
 	parallel_for_each(arr.extent, [=](index<1> idx) restrict(amp) {
-	//	AmpVector<float, 4, true> amp_v;
-		Vector<uint32_t, 3, true> u3amp;
+		TestAMP();
 	});
-	/*half2 h2;
-	half2 h3;
-	half2 h4;*/
-	uint16_t uu;
-	//AmpCompatibleHelper<uint16_t>(*((uint16_t*)(nullptr)));
 
-	//Vector<uint16_t, 3> s3;
 
 	/*float4x4 ta;
 	float4x4 tb;

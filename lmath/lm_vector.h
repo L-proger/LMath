@@ -41,7 +41,7 @@ namespace lm {
 	}
 
 
-	template<typename T, LmSize N, bool UseAMP = false>
+	template<typename T, LmSize N>
 	struct Vector{
 	public:
 		static constexpr LmSize Size = N;
@@ -51,109 +51,174 @@ namespace lm {
 
 		constexpr Vector() {}
 
-		template<typename = std::enable_if_t<UseAMP>>
+		template<typename = void>
 		constexpr Vector() restrict(amp) {}
 
-		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>>
-		constexpr Vector(const Args& ... rest) : data{ rest... } {}
+#define EMPTY_SUFFIX
+#define GEN_METHOD(_Method) _Method(EMPTY_SUFFIX) _Method(restrict(amp)) 
 
-/*
-
-		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>>
-		constexpr Vector(const Args& ... rest)  RESTRICT(cpu, amp) : data{ rest... } {}
-
+#define CTOR_VA(_Suffix) \
+		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>> \
+		constexpr Vector(const Args& ... rest) _Suffix : data{ rest... } {}
+		GEN_METHOD(CTOR_VA)
 
 		//Vector2 constructors
-		template<typename TA, typename = std::enable_if_t<N == 2>>
-		constexpr Vector(const TA& a, const TA& b)  RESTRICT(cpu, amp) : data{ a, b } {}
+#define CTOR_V2(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 2>> \
+		constexpr Vector(const TA& a, const TA& b) _Suffix : data{ a, b } {}
+		GEN_METHOD(CTOR_V2)
 
 		//Vector3 constructors
-		template<typename TA, typename = typename std::enable_if<N == 3, T>::type>
-		Vector(const TA& a, const TA& b, const TA& c)  RESTRICT(cpu, amp) : data{ a, b, c} {}
+#define CTOR_V3_0(_Suffix) \
+		template<typename TA, typename = typename std::enable_if<N == 3, T>::type>\
+		Vector(const TA& a, const TA& b, const TA& c) _Suffix : data{ a, b, c } {}
+		GEN_METHOD(CTOR_V3_0)
 
+#define CTOR_V3_1(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 3>> \
+		constexpr Vector(const Vector<TA, 2>& a, const TA& b) _Suffix : data{ a[0], a[1], b } {}
+		GEN_METHOD(CTOR_V3_1)
 
-		template<typename TA, typename = std::enable_if_t<N == 3>>
-		constexpr Vector(const Vector<TA, 2>& a, const TA& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], b } {}
+#define CTOR_V3_2(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 3>> \
+		constexpr Vector(const TA& a, const Vector<TA, 2>& b) _Suffix : data{ a, b[0], b[1] } {}
+		GEN_METHOD(CTOR_V3_2)
 
-		template<typename TA, typename = std::enable_if_t<N == 3>>
-		constexpr Vector(const TA& a, const Vector<TA, 2>& b)  RESTRICT(cpu, amp) : data{ a, b[0], b[1] } {}
-
-
+	
 		//Vector4 constructors
-		template<typename TA, typename = std::enable_if_t<N == 4>>
-		constexpr Vector(const TA& a, const TA& b, const TA& c, const TA& d)  RESTRICT(cpu, amp) : data{ a, b, c, d } {}
+#define CTOR_V4_0(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		constexpr Vector(const TA& a, const TA& b, const TA& c, const TA& d) _Suffix : data{ a, b, c, d } {}
+		GEN_METHOD(CTOR_V4_0)
 
-		template<typename TA, typename = std::enable_if_t<N == 4>>
-		constexpr Vector(const TA& a, const TA& b, const Vector<T, 2>& c)  RESTRICT(cpu, amp) : data{ a, b, c[0], c[1] } {}
+#define CTOR_V4_1(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		constexpr Vector(const TA& a, const TA& b, const Vector<T, 2>& c) _Suffix : data{ a, b, c[0], c[1] } {}
+		GEN_METHOD(CTOR_V4_1)
 
-		template<typename TA, typename = std::enable_if_t<N == 4>>
-		constexpr Vector(const Vector<TA, 2>& a, const TA& b, const TA& c)  RESTRICT(cpu, amp) : data{ a[0], a[1], b, c } {}
+#define CTOR_V4_2(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		constexpr Vector(const Vector<TA, 2>& a, const TA& b, const TA& c) _Suffix  : data{ a[0], a[1], b, c } {}
+		GEN_METHOD(CTOR_V4_2)
 
-		template<typename TA, typename = std::enable_if_t<N == 4>>
-		constexpr Vector(const Vector<TA, 2>& a, const Vector<TA, 2>& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], b[0], b[1] } {}
+#define CTOR_V4_3(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		constexpr Vector(const Vector<TA, 2>& a, const Vector<TA, 2>& b) _Suffix  : data{ a[0], a[1], b[0], b[1] } {}
+		GEN_METHOD(CTOR_V4_3)
 
-		template<typename TA, typename = std::enable_if_t<N == 4>>
-		constexpr Vector(const TA& a, const Vector<TA, 3>& b)  RESTRICT(cpu, amp) : data{ a, b[0], b[1], b[2] } {}
+#define CTOR_V4_4(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		constexpr Vector(const TA& a, const Vector<TA, 3>& b) _Suffix : data{ a, b[0], b[1], b[2] } {}
+		GEN_METHOD(CTOR_V4_4)
 
-		template<typename TA, typename = std::enable_if_t<N == 4>>
-		constexpr Vector(const Vector<TA, 3>& a, const TA& b)  RESTRICT(cpu, amp) : data{ a[0], a[1], a[2], b } {}
+#define CTOR_V4_5(_Suffix) \
+		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		constexpr Vector(const Vector<TA, 3>& a, const TA& b) _Suffix  : data{ a[0], a[1], a[2], b } {}
+		GEN_METHOD(CTOR_V4_5)
 
-		template<typename Arg>
-		Vector(Arg arg) RESTRICT(cpu, amp) {
-			for (LmSize i = 0; i < N; ++i) {
-				data[i] = arg;
-			}
+#define CTOR_S(_Suffix) \
+		template<typename Arg> \
+		Vector(Arg arg) _Suffix { \
+			for (LmSize i = 0; i < N; ++i) { \
+				data[i] = arg; \
+			} \
 		}
+		GEN_METHOD(CTOR_S)
+
 
 		//UnitX
-		template<LmSize M = N>
-		static typename std::enable_if<M == 1, Vector>::type unitX() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(1));
+#define UNIT_X0(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 1, Vector>::type unitX() _Suffix { \
+			return Vector(static_cast<T>(1)); \
 		}
+		GEN_METHOD(UNIT_X0)
 
-		template<LmSize M = N>
-		static typename std::enable_if<M == 2, Vector>::type unitX() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(1), static_cast<T>(0));
+#define UNIT_X1(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 2, Vector>::type unitX() _Suffix { \
+			return Vector(static_cast<T>(1), static_cast<T>(0)); \
 		}
+		GEN_METHOD(UNIT_X1)
 
-		template<LmSize M = N>
-		static typename std::enable_if<M == 3, Vector>::type unitX() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0));
+#define UNIT_X2(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 3, Vector>::type unitX() _Suffix { \
+			return Vector(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0)); \
 		}
-		template<LmSize M = N>
-		static typename std::enable_if<M == 4, Vector>::type unitX() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
+		GEN_METHOD(UNIT_X2)
+
+#define UNIT_X3(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 4, Vector>::type unitX() _Suffix { \
+			return Vector(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0)); \
 		}
+		GEN_METHOD(UNIT_X3)
+
 
 		//UnitY
-		template<LmSize M = N>
-		static typename std::enable_if<M == 2, Vector>::type unitY() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(0), static_cast<T>(1));
+#define UNIT_Y0(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 2, Vector>::type unitY() _Suffix { \
+			return Vector(static_cast<T>(0), static_cast<T>(1)); \
 		}
+		GEN_METHOD(UNIT_Y0)
 
-		template<LmSize M = N>
-		static typename std::enable_if<M == 3, Vector>::type unitY() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0));
+#define UNIT_Y1(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 3, Vector>::type unitY() _Suffix { \
+			return Vector(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0)); \
 		}
-		template<LmSize M = N>
-		static typename std::enable_if<M == 4, Vector>::type unitY() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0), static_cast<T>(0));
+		GEN_METHOD(UNIT_Y1)
+
+#define UNIT_Y2(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 4, Vector>::type unitY() _Suffix { \
+			return Vector(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0), static_cast<T>(0)); \
 		}
+		GEN_METHOD(UNIT_Y2)
+
 		//UnitZ
-		template<LmSize M = N>
-		static typename std::enable_if<M == 3, Vector>::type unitZ() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
+#define UNIT_Z0(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 3, Vector>::type unitZ() _Suffix { \
+			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1)); \
 		}
-		template<LmSize M = N>
-		static typename std::enable_if<M == 4, Vector>::type unitZ() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1), static_cast<T>(0));
-		}
-		//UnitW
-		template<LmSize M = N>
-		static typename std::enable_if<M == 4, Vector>::type unitW() RESTRICT(cpu, amp) {
-			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
-		}
+		GEN_METHOD(UNIT_Z0)
 
+#define UNIT_Z1(_Suffix) \
+		template<LmSize M = N>  \
+		static typename std::enable_if<M == 4, Vector>::type unitZ() _Suffix { \
+			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1), static_cast<T>(0));   \
+		}
+		GEN_METHOD(UNIT_Z1)
+
+		//UnitW
+#define UNIT_W0(_Suffix) \
+		template<LmSize M = N> \
+		static typename std::enable_if<M == 4, Vector>::type unitW() _Suffix { \
+			return Vector(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1)); \
+		}
+		GEN_METHOD(UNIT_W0)
+
+			//EMPTY_SUFFIX
+
+#define VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, _Modifier, _Restrict) \
+			template<LmSize S = Size, typename = std::enable_if_t<(S == Size) && (S > _Index)>> \
+			_Modifier auto& _Name () _Modifier _Restrict { return data[_Index]; }
+
+#define VECTOR_ITEM_ACCESSOR(_Name, _Index) \
+			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, EMPTY_SUFFIX, EMPTY_SUFFIX) \
+			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, const, EMPTY_SUFFIX) \
+			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, EMPTY_SUFFIX, restrict(amp)) \
+			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, const, restrict(amp))
+
+		//accessors
+		VECTOR_ITEM_ACCESSOR(x, 0);
+		VECTOR_ITEM_ACCESSOR(y, 1);
+		VECTOR_ITEM_ACCESSOR(z, 2);
+		VECTOR_ITEM_ACCESSOR(w, 3);
+/*
 
 		template<LmSize Offset, LmSize Length, typename = std::enable_if_t<Offset + Length <= N>>
 		Vector<T, Length>& slice() {
