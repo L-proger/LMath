@@ -5,68 +5,42 @@
 using namespace concurrency;
 using namespace lm;
 
-static void test_float2() restrict(cpu, amp) {
-	auto t = float2(1.0f, 2.0f);
-	float2 t1 = t * 2;
-	t1 = t1 / 8;
-	t1 = t1 + 3;
-	t1 = t1 - 2;
-
-	float2 t2 = 10.0f;
-	float2 t3 = t1 + t2;
-	t3 = t1 - t2;
-	t3 = t1 * t2;
-	t3 = t1 / t2;
-}
-/*
-static void test_float3() restrict(cpu, amp) {
-	typedef float3 test_vector_t;
-	test_vector_t c0 = test_vector_t();
-	test_vector_t c1 = test_vector_t(1);
-	test_vector_t c2 = test_vector_t(1, 2, 3);
-
-	test_vector_t t = test_vector_t(1, 2, 3);
-	test_vector_t t1 = t * 2;
-	t1 = t1 / 8;
-	t1 = t1 + 3;
-	t1 = t1 - 2;
-
-	test_vector_t t2 = test_vector_t::up();
-	t2 = test_vector_t::right();
-	t2 = test_vector_t::forward();
-	t2 = test_vector_t(10);
-
-	test_vector_t t3 = t1 + t2;
-	t3 = t1 - t2;
-	t3 = t1 * t2;
-	t3 = t1 / t2;
-}
-
-static void test_float4() restrict(cpu, amp) {
-	typedef float4 test_vector_t;
-	test_vector_t c0 = test_vector_t();
-	test_vector_t c1 = test_vector_t(1);
-	test_vector_t c2 = test_vector_t(1, 2, 3, 4);
-
-	test_vector_t t = test_vector_t(1, 2, 3, 4);
-	test_vector_t t1 = t * 2;
-	t1 = t1 / 8;
-	t1 = t1 + 3;
-	t1 = t1 - 2;
-
-	test_vector_t t2 = test_vector_t(10);
-
-	test_vector_t t3 = t1 + t2;
-	t3 = t1 - t2;
-	t3 = t1 * t2;
-	t3 = t1 / t2;
-}
-*/
 int main() {
-
+	//AmpVector<uint16_t, 4, false> fffff;
 	
 
-	float4x4 ta;
+//	auto fs = sizeof(fffff);
+
+
+	typedef Vector<uint16_t, 3> uint16_3;
+
+	typedef Vector<uint16_t, 3, true> uint16_3_amp;
+
+
+	uint16_3 u3;
+	
+
+	std::vector<lm::float3> amp_vector;
+	std::vector<lm::float3> amp_result_vector(amp_vector.size());
+
+	array_view<lm::float3, 1> arr(amp_vector);
+	array_view<lm::float3, 1> arr_result(amp_result_vector);
+	arr_result.discard_data();
+
+
+	parallel_for_each(arr.extent, [=](index<1> idx) restrict(amp) {
+	//	AmpVector<float, 4, true> amp_v;
+		Vector<uint32_t, 3, true> u3amp;
+	});
+	/*half2 h2;
+	half2 h3;
+	half2 h4;*/
+	uint16_t uu;
+	//AmpCompatibleHelper<uint16_t>(*((uint16_t*)(nullptr)));
+
+	//Vector<uint16_t, 3> s3;
+
+	/*float4x4 ta;
 	float4x4 tb;
 	ta = tb;
 
@@ -134,11 +108,8 @@ int main() {
 
 
 	test_float2();
-	std::vector<lm::float3> amp_vector = { float3(1.0f),float3(2.0f),float3(3.0f) };
-	std::vector<lm::float3> amp_result_vector(amp_vector.size());
-	array_view<lm::float3, 1> arr(amp_vector);
-	array_view<lm::float3, 1> arr_result(amp_result_vector);
-	arr_result.discard_data();
+	
+
 
 	float3 mul_self_0(1.0f, 2.0f, 3.0f);
 	mul_self_0 *= 2;
@@ -153,6 +124,9 @@ int main() {
 	
 	//AMP test
 	parallel_for_each(arr.extent, [=](index<1> idx) restrict(amp) {
+
+
+//		Half h1;
 
 	float3x3 m1;
 	
@@ -207,7 +181,7 @@ int main() {
 	auto any_2 = lm::any(float4(0.0f, 0.0f, 0.0f, 1.0f));
 	auto any_3 = lm::any(float4(0.0f, 0.0f, 1.0f, 1.0f));
 	auto any_4 = lm::any(float4(0.0f, 1.0f, 1.0f, 1.0f));
-	auto any_5 = lm::any(float4(1.0f, 1.0f, 1.0f, 1.0f));
+	auto any_5 = lm::any(float4(1.0f, 1.0f, 1.0f, 1.0f));*/
 
 /*	arr_result[idx] = lm::normalize(t3) + 2;
 
@@ -273,8 +247,8 @@ int main() {
 	auto norm_2 = lm::normalize(float3(1, 2, 4));
 
 
-	*/
-	});
+	
+	});*/
 
 	/*arr_result.synchronize(access_type_auto);
 

@@ -40,12 +40,8 @@ namespace lm {
 		return *this; \
 	}
 
-	template<typename T, LmSize N>
-	struct Vector;
 
-
-
-	template<typename T, LmSize N>
+	template<typename T, LmSize N, bool UseAMP = false>
 	struct Vector{
 	public:
 		static constexpr LmSize Size = N;
@@ -53,7 +49,15 @@ namespace lm {
 
 		T data[Size];
 
-		constexpr Vector() RESTRICT(cpu, amp) {}
+		constexpr Vector() {}
+
+		template<typename = std::enable_if_t<UseAMP>>
+		constexpr Vector() restrict(amp) {}
+
+		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>>
+		constexpr Vector(const Args& ... rest) : data{ rest... } {}
+
+/*
 
 		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>>
 		constexpr Vector(const Args& ... rest)  RESTRICT(cpu, amp) : data{ rest... } {}
@@ -199,7 +203,11 @@ namespace lm {
 		}
 #endif
 
-		auto normalized() const RESTRICT(cpu, amp) {
+		auto normalized() const RESTRICT(cpu) {
+			return (*this) / length();
+		}
+
+		auto normalized() const RESTRICT(amp) {
 			return (*this) / length();
 		}
 
@@ -238,9 +246,14 @@ namespace lm {
 			return false;
 		}
 
-		explicit operator T*() RESTRICT(cpu, amp) {
+		explicit operator T*() RESTRICT(amp) {
 			return Size == 0 ? nullptr : &data[0];
 		}
+		explicit operator T*() RESTRICT(cpu) {
+			return Size == 0 ? nullptr : &data[0];
+		}
+
+
 		explicit operator const T*() const  RESTRICT(cpu, amp) {
 			return Size == 0 ? nullptr : &data[0];
 		}
@@ -251,11 +264,11 @@ namespace lm {
 		const T& operator [] (LmSize id) const RESTRICT(cpu, amp) {
 			return data[id];
 		}
-
+		*/
 	};
 
 
-
+	/*
 
 	template<typename T, typename U>
 	auto cross(const Vector<T, 3>& a, const Vector<U, 3>& b)RESTRICT(cpu, amp) {
@@ -500,6 +513,8 @@ namespace lm {
 	auto distance(const Vector<T1, N>& v1, const Vector<T2, N>& v2) RESTRICT(cpu, amp) {
 		return (v2 - v1).length();
 	}
+
+	*/
 
 	typedef Vector<float, 2> float2;
 	typedef Vector<float, 3> float3;

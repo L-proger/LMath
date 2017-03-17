@@ -2,41 +2,43 @@
 #define LM_HALF_h__
 
 #include <cstdint>
+#include "lm_types.h"
 
 namespace lm{
 
     class Half{
     private:
         struct FI32{
-            union{
-                float f;
-                uint32_t i;
-            };
+			static_assert(sizeof(float) == 4, "Not supported float size");
+			float& f()  {
+				return *(reinterpret_cast<float*>(&i));
+			}
+            uint32_t i;
         };
-        uint16_t data;
+        std::uint16_t data;
     public:
-        bool isNan(){
+        bool isNan()  {
             return ((data & 0x7c00) == 0x7c00) && ((data & 0x3ff) != 0);
         }
-        bool isInf(){
+        bool isInf()  {
             return ((data & 0x7c00) == 0x7c00) && ((data & 0x3ff) == 0);
         }
-        bool isSubnormal(){
+        bool isSubnormal()  {
             return ((data & 0x7c00) == 0) && ((data & 0x3ff) != 0);
         }
-        bool isPositive(){
+        bool isPositive()  {
             return (data & 0x8000) == 0;
         }
-        bool isZero(){
+        bool isZero()  {
             return (data & 0x7fff) == 0;
         }
-        const float toFloat() const{
+        const float toFloat() const  {
             return toFloat(*this);
         }
-        static const Half toHalf(float src){
+        static Half toHalf(float src)  {
             Half dst;
             FI32 fi;
-            fi.f = src;
+            fi.f() = src;
             int32_t s,m,e;
 
             //fp32 exponent zero offset = 127
@@ -93,7 +95,7 @@ namespace lm{
             }
             return dst;
         }
-        static const float toFloat(const Half& src){
+        static float toFloat(const Half& src)  {
             int s, e, m;
             FI32 fi;
             s = src.data >> 15;
@@ -118,92 +120,92 @@ namespace lm{
             }else{
                 fi.i = (s << 31) | 0x7f800000 | (m << 13);
             }
-            return fi.f;
+            return fi.f();
         }
 
-        Half(){
+        Half() {
 
         }
-        Half(const Half& val){
+        Half(const Half& val) {
             data = val.data;
         }
-        Half(const float& val){
+        Half(const float& val) {
             *this = toHalf(val);
         }
-        Half& operator =(const float& other){
+        Half& operator =(const float& other) {
             *this = toHalf(other);
             return *this;
         }
 
         //operators
-        Half operator +(){
+        Half operator +() {
             return *this;
         }
-        Half operator -(){
+        Half operator -() {
             return toHalf(-toFloat());
         }
-        Half operator +(const Half& rval){
+        Half operator +(const Half& rval) {
             return toHalf(this->toFloat() + rval.toFloat());
         }
-        Half operator -(const Half& rval){
+        Half operator -(const Half& rval) {
             return toHalf(this->toFloat() - rval.toFloat());
         }
-        Half operator *(const Half& rval){
+        Half operator *(const Half& rval) {
             return toHalf(this->toFloat() * rval.toFloat());
         }
-        Half operator /(const Half& rval){
+        Half operator /(const Half& rval) {
             return toHalf(this->toFloat() / rval.toFloat());
         }
 
-        bool operator ==(const Half& rval){
+        bool operator ==(const Half& rval) {
             return data == rval.data;
         }
-        bool operator !=(const Half& rval){
+        bool operator !=(const Half& rval) {
             return data != rval.data;
         }
-        bool operator <(const Half& rval){
+        bool operator <(const Half& rval) {
             return this->toFloat() < rval.toFloat();
         }
-        bool operator >(const Half& rval){
+        bool operator >(const Half& rval) {
             return this->toFloat() > rval.toFloat();
         }
-        bool operator <=(const Half& rval){
+        bool operator <=(const Half& rval) {
             return this->toFloat() <= rval.toFloat();
         }
-        bool operator >=(const Half& rval){
+        bool operator >=(const Half& rval) {
             return this->toFloat() >= rval.toFloat();
         }
-        Half& operator +=(const Half& rval){
+        Half& operator +=(const Half& rval) {
             *this = toHalf(this->toFloat() + rval.toFloat());
             return *this;
         }
-        Half& operator -=(const Half& rval){
+        Half& operator -=(const Half& rval) {
             *this = toHalf(this->toFloat() - rval.toFloat());
             return *this;
         }
-        Half& operator *=(const Half& rval){
+        Half& operator *=(const Half& rval) {
             *this = toHalf(this->toFloat() * rval.toFloat());
             return *this;
         }
-        Half& operator /=(const Half& rval){
+        Half& operator /=(const Half& rval) {
             *this = toHalf(this->toFloat() / rval.toFloat());
             return *this;
         }
 
-        const Half& operator++(){
+        const Half& operator++() {
             *this = toHalf(this->toFloat() + 1.0f);
             return *this;
         }
-        const Half operator++(int){
+        const Half operator++(int) {
             Half old(*this);
             *this = toHalf(this->toFloat() + 1.0f);
             return old;
         }
-        const Half& operator--(){
+        const Half& operator--() {
             *this = toHalf(this->toFloat() - 1.0f);
             return *this;
         }
-        const Half operator--(int){
+        const Half operator--(int) {
             Half old(*this);
             *this = toHalf(this->toFloat() - 1.0f);
             return old;
