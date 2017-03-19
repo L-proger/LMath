@@ -2,25 +2,14 @@
 #define lm_vector_h__
 
 #include <type_traits>
-#include <array>
+
 #include "lm_types.h"
 #include "lm_constants.h"
+#include "lm_macro.h"
 
 namespace lm {
 
-#define EMPTY_SUFFIX
-#define EMPTY
-#define UNPACK(...) __VA_ARGS__
-#define GEN_METHOD(_Method) _Method(EMPTY_SUFFIX) _Method(restrict(amp)) 
-
-#define GEN_METHOD_CONST(_Method) _Method(const) _Method(const restrict(amp)) 
-
-#define GEN_METHOD2(_Method) _Method(EMPTY, EMPTY) _Method(const, const) _Method(EMPTY, restrict(amp)) _Method(const, const restrict(amp)) 
-
-#define GEN_METHOD_PARAMS(_Method, ...) UNPACK(_Method(__VA_ARGS__, EMPTY_SUFFIX)) UNPACK(_Method(__VA_ARGS__, restrict(amp)))
-
-
-#define VECTOR_ARITHMETIC_OP_SCALAR(_Op, _Suffix) \
+#define LM_VECTOR_ARITHMETIC_OP_SCALAR(_Op, _Suffix) \
 	template<typename U> \
 	auto operator _Op (const U& divider) const _Suffix { \
 		Vector<DivideType<T, U>, N> result; \
@@ -30,7 +19,7 @@ namespace lm {
 		return result; \
 	} 
 
-#define VECTOR_ARITHMETIC_OP_VECTOR(_Op, _Suffix) \
+#define LM_VECTOR_ARITHMETIC_OP_VECTOR(_Op, _Suffix) \
 	template<typename U> \
 		auto operator _Op (Vector<U, N> divider) const _Suffix {\
 		Vector<DivideType<T, U>, N> result; \
@@ -40,7 +29,7 @@ namespace lm {
 		return result; \
 	} \
 
-#define VECTOR_ARITHMETIC_OP_SELF_SCALAR(_Op, _Suffix) \
+#define LM_VECTOR_ARITHMETIC_OP_SELF_SCALAR(_Op, _Suffix) \
 	template<typename U>\
 		auto operator _Op## = (const U& divider) _Suffix { \
 		for (LmSize i = 0; i < N; ++i) { \
@@ -49,7 +38,7 @@ namespace lm {
 		return *this; \
 	} 
 
-#define VECTOR_ARITHMETIC_OP_SELF_VECTOR(_Op, _Suffix) \
+#define LM_VECTOR_ARITHMETIC_OP_SELF_VECTOR(_Op, _Suffix) \
 	template<typename U> \
 	auto operator _Op##= (Vector<U, N> divider) _Suffix{ \
 		for (LmSize i = 0; i < N; ++i) { \
@@ -58,23 +47,41 @@ namespace lm {
 		return *this; \
 	}
 
-
-#define VECTOR_ARITHMETIC_OP(_Op) \
-	GEN_METHOD_PARAMS(VECTOR_ARITHMETIC_OP_SCALAR, _Op) \
-	GEN_METHOD_PARAMS(VECTOR_ARITHMETIC_OP_VECTOR, _Op) \
-	GEN_METHOD_PARAMS(VECTOR_ARITHMETIC_OP_SELF_SCALAR, _Op) \
-	GEN_METHOD_PARAMS(VECTOR_ARITHMETIC_OP_SELF_VECTOR, _Op)
-
+#define LM_VECTOR_ARITHMETIC_OP(_Op) \
+	GEN_METHOD_PARAMS(LM_VECTOR_ARITHMETIC_OP_SCALAR, _Op) \
+	GEN_METHOD_PARAMS(LM_VECTOR_ARITHMETIC_OP_VECTOR, _Op) \
+	GEN_METHOD_PARAMS(LM_VECTOR_ARITHMETIC_OP_SELF_SCALAR, _Op) \
+	GEN_METHOD_PARAMS(LM_VECTOR_ARITHMETIC_OP_SELF_VECTOR, _Op)
 
 
-/*
-#define VECTOR_ARITHMETIC_OP(_Op) \
-	
-	
-*/
+#define MATH_VECTOR_FUNC(_Name, _TemplateParams, _TemplateParamsNames, _ExecParams, _Params) \
+	namespace impl { \
+		template<typename T UNPACK _TemplateParams> \
+		struct _Name { \
+			template<typename = void> \
+			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(cpu) { return std::##_Name##(v UNPACK _Params); } \
+			ENABLE_IF_AMP(template<typename = void>  static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math::##_Name##(v UNPACK _Params); }) \
+		}; \
+		template<typename T, LmSize N UNPACK _TemplateParams> \
+		struct _Name <Vector<T, N> UNPACK _TemplateParamsNames> { \
+			template<typename = void> \
+			static auto exec(const Vector<T, N>& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
+				Vector<decltype(##_Name##<T UNPACK _TemplateParamsNames>::exec(*static_cast<T*>(nullptr) UNPACK _Params)), N> result; \
+				for (LmSize i = 0; i < N; ++i) { result[i] = impl::_Name##<T UNPACK _TemplateParamsNames>::exec(v[i] UNPACK _Params); } \
+				return result; \
+			} \
+		}; \
+	} \
+	template<typename T UNPACK _TemplateParams> \
+	auto _Name(const T& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
+		return impl::##_Name##<T UNPACK _TemplateParamsNames>::exec(v UNPACK _Params); \
+	}
+
+#define MATH_VECTOR_FUNC_ONE_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (, typename TParam), (, TParam), (, TParam x), (, x))
+#define MATH_VECTOR_FUNC_NO_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (), (), (), ())
 
 	template<typename T, LmSize N>
-	struct Vector{
+	struct Vector {
 	public:
 		static constexpr LmSize Size = N;
 		typedef T ElementType;
@@ -153,7 +160,6 @@ namespace lm {
 			} \
 		}
 		GEN_METHOD(CTOR_S)
-
 
 		//UnitX
 #define UNIT_X0(_Suffix) \
@@ -261,19 +267,19 @@ namespace lm {
 		_Prefix auto& _Name () _Suffix { return slice<SliceOffset, SliceLength>(); }
 
 
-#define LINEAR_SLICE_ACCESSOR_XY(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(xy, 0, 2, _Prefix, _Suffix)
-#define LINEAR_SLICE_ACCESSOR_XYZ(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(xyz, 0, 3, _Prefix, _Suffix)
-#define LINEAR_SLICE_ACCESSOR_XYZW(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(xyzw, 0, 4, _Prefix, _Suffix)
-#define LINEAR_SLICE_ACCESSOR_YZ(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(yz, 1, 2, _Prefix, _Suffix)
-#define LINEAR_SLICE_ACCESSOR_YZW(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(yzw, 1, 3, _Prefix, _Suffix)
-#define LINEAR_SLICE_ACCESSOR_ZW(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(zw, 2, 2, _Prefix, _Suffix)
+#define LM_VECTOR_LINEAR_SLICE_ACCESSOR_XY(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(xy, 0, 2, _Prefix, _Suffix)
+#define LM_VECTOR_LINEAR_SLICE_ACCESSOR_XYZ(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(xyz, 0, 3, _Prefix, _Suffix)
+#define LM_VECTOR_LINEAR_SLICE_ACCESSOR_XYZW(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(xyzw, 0, 4, _Prefix, _Suffix)
+#define LM_VECTOR_LINEAR_SLICE_ACCESSOR_YZ(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(yz, 1, 2, _Prefix, _Suffix)
+#define LM_VECTOR_LINEAR_SLICE_ACCESSOR_YZW(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(yzw, 1, 3, _Prefix, _Suffix)
+#define LM_VECTOR_LINEAR_SLICE_ACCESSOR_ZW(_Prefix, _Suffix) LINEAR_SLICE_ACCESSOR_BASE(zw, 2, 2, _Prefix, _Suffix)
 
-		GEN_METHOD2(LINEAR_SLICE_ACCESSOR_XY)
-		GEN_METHOD2(LINEAR_SLICE_ACCESSOR_XYZ)
-		GEN_METHOD2(LINEAR_SLICE_ACCESSOR_XYZW)
-		GEN_METHOD2(LINEAR_SLICE_ACCESSOR_YZ)
-		GEN_METHOD2(LINEAR_SLICE_ACCESSOR_YZW)
-		GEN_METHOD2(LINEAR_SLICE_ACCESSOR_ZW)
+			GEN_METHOD2(LM_VECTOR_LINEAR_SLICE_ACCESSOR_XY)
+			GEN_METHOD2(LM_VECTOR_LINEAR_SLICE_ACCESSOR_XYZ)
+			GEN_METHOD2(LM_VECTOR_LINEAR_SLICE_ACCESSOR_XYZW)
+			GEN_METHOD2(LM_VECTOR_LINEAR_SLICE_ACCESSOR_YZ)
+			GEN_METHOD2(LM_VECTOR_LINEAR_SLICE_ACCESSOR_YZW)
+			GEN_METHOD2(LM_VECTOR_LINEAR_SLICE_ACCESSOR_ZW)
 
 
 #define LEN_SQ(_Prefix, _Suffix) \
@@ -288,24 +294,17 @@ namespace lm {
 
 		GEN_METHOD2(LEN_SQ)
 
-		auto length() const RESTRICT(cpu) {
-			//TODO: change to lm sqrt
-			return std::sqrt(lengthSquared());
-		}
+		auto length() const RESTRICT(cpu);
 #if defined(LM_AMP_SUPPORTED)
-		auto length() const RESTRICT(amp) {
-			return concurrency::precise_math::sqrt(lengthSquared());
-		}
-#endif
+		auto length() const RESTRICT(amp);
+#endif 
 
 #define OP_INDEX(_Prefix, _Suffix) \
 		template<typename = void> \
 		_Prefix T& operator [] (LmSize id) _Suffix { \
 			return data[id]; \
 		}
-
 		GEN_METHOD2(OP_INDEX)
-
 
 #define NORMALIZED(_Suffix) \
 		auto normalized() _Suffix { \
@@ -314,12 +313,14 @@ namespace lm {
 		GEN_METHOD_CONST(NORMALIZED)
 
 
-		VECTOR_ARITHMETIC_OP(+);
-		VECTOR_ARITHMETIC_OP(-);
-		VECTOR_ARITHMETIC_OP(*);
-		VECTOR_ARITHMETIC_OP(/ );
+		LM_VECTOR_ARITHMETIC_OP(+);
+		LM_VECTOR_ARITHMETIC_OP(-);
+		LM_VECTOR_ARITHMETIC_OP(*);
+		LM_VECTOR_ARITHMETIC_OP(/ );
 
+		template<typename = void>
 		bool equals(const Vector& other, T tolerance) const;
+		ENABLE_IF_AMP(template<typename = void> bool equals(const Vector& other, T tolerance) const restrict(amp); )
 
 #define OP_NEG(_Suffix) \
 		template<typename = void> \
@@ -416,37 +417,13 @@ namespace lm {
 		return false;
 	}
 
-	
-
-#define MATH_VECTOR_FUNC(_Name, _TemplateParams, _TemplateParamsNames, _ExecParams, _Params) \
-	namespace impl { \
-		template<typename T UNPACK _TemplateParams> \
-		struct _Name { \
-			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(cpu) { return std::##_Name##(v UNPACK _Params); } \
-			ENABLE_IF_AMP(static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math::##_Name##(v UNPACK _Params); }) \
-		}; \
-		template<typename T, LmSize N UNPACK _TemplateParams> \
-		struct _Name <Vector<T, N> UNPACK _TemplateParamsNames> { \
-			static auto exec(const Vector<T, N>& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
-				Vector<decltype(##_Name##<T UNPACK _TemplateParamsNames>::exec(*static_cast<T*>(nullptr) UNPACK _Params)), N> result; \
-				for (LmSize i = 0; i < N; ++i) { result[i] = _Name##<T UNPACK _TemplateParamsNames>::exec(v[i] UNPACK _Params); } \
-				return result; \
-			} \
-		}; \
-	} \
-	template<typename T UNPACK _TemplateParams> \
-	auto _Name(const T& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
-		return impl::##_Name##<T UNPACK _TemplateParamsNames>::exec(v UNPACK _Params); \
-	}
-
 
 	namespace impl {
 		template<typename T>
-		struct abs {
-		};
+		struct abs {};
 		template<>
 		struct abs<float> {
-			static auto exec(const float& v) RESTRICT(cpu) { return std::fabs(v); } 
+			static auto exec(const float& v) RESTRICT(cpu) { return std::fabs(v); }
 			ENABLE_IF_AMP(static auto exec(const float& v) RESTRICT(amp) { return concurrency::precise_math::fabs(v); })
 		};
 		template<>
@@ -469,9 +446,6 @@ namespace lm {
 		return impl::abs<T>::exec(v);
 	}
 
-	
-#define MATH_VECTOR_FUNC_ONE_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (, typename TParam), (, TParam), (, TParam x), (, x))
-#define MATH_VECTOR_FUNC_NO_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (), (), (), ())
 
 	MATH_VECTOR_FUNC_ONE_PARAM(pow);
 	MATH_VECTOR_FUNC_NO_PARAM(sin);
@@ -488,6 +462,15 @@ namespace lm {
 	MATH_VECTOR_FUNC_NO_PARAM(log);
 
 	MATH_VECTOR_FUNC_NO_PARAM(sqrt);
+
+#define LM_VEC_METHOD_LENGTH(_Suffix) \
+	template<typename T, LmSize N> \
+	auto Vector<T, N>::length() const _Suffix { \
+		return lm::sqrt(lengthSquared()); \
+	}
+
+	GEN_METHOD(LM_VEC_METHOD_LENGTH)
+
 
 #ifdef min
 #undef min
@@ -592,16 +575,19 @@ namespace lm {
 		return impl::degrees<T>::exec(a);
 	}
 
-
-	template<typename T, LmSize N>
-	bool Vector<T, N>::equals(const Vector<T, N>& other, T tolerance) const RESTRICT(cpu, amp) {
-		for (LmSize i = 0; i < N; ++i) {
-			if (lm::abs(data[i] - other[i]) >= tolerance) {
-				return false;
-			}
-		}
-		return true;
+#define LM_VECTOR_EQUALS(_Suffix) \
+	template<typename T, LmSize N> \
+template<typename> \
+	bool Vector<T, N>::equals(const Vector<T, N>& other, T tolerance) const _Suffix { \
+		for (LmSize i = 0; i < N; ++i) { \
+			if (lm::abs(data[i] - other[i]) >= tolerance) { \
+				return false; \
+			} \
+		} \
+		return true; \
 	}
+
+	GEN_METHOD(LM_VECTOR_EQUALS)
 
 	template<typename T, LmSize N>
 	bool equals(const Vector<T, N>& a, const Vector<T, N>& b, T tolerance) RESTRICT(cpu, amp) {

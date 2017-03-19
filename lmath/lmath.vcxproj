@@ -153,6 +153,7 @@
     <ClInclude Include="lmath.h" />
     <ClInclude Include="lm_constants.h" />
     <ClInclude Include="lm_half.h" />
+    <ClInclude Include="lm_macro.h" />
     <ClInclude Include="lm_plane.h" />
     <ClInclude Include="lm_plane_intrin.h" />
     <ClInclude Include="lm_quaternion.h" />

@@ -21,7 +21,7 @@ void TestCPU() restrict(cpu) {
 	auto p3x = p3.y();
 
 	p0.lengthSquared();
-	p0.length();
+//	p0.length();
 
 	auto pp0 = p0 / 2.0f;
 	auto pp1 = p0 * 2.0f;

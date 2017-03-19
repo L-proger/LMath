@@ -349,5 +349,8 @@ public:
 		Assert::IsTrue(lm::lerp(v1, v2, 0.9f).equals(float3(0.8f, 0.8f, 0.8f), tolerance));
 	}
 
+
+
+
 	};
 }
