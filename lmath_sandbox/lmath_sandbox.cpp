@@ -19,6 +19,32 @@ void TestCPU() restrict(cpu) {
 	Vector<uint16_t, 4>::unitX();
 
 	auto p3x = p3.y();
+
+	p0.lengthSquared();
+	p0.length();
+
+	auto pp0 = p0 / 2.0f;
+	auto pp1 = p0 * 2.0f;
+	auto pp2 = p0 + 2.0f;
+	auto pp3 = p0 - 2.0f;
+
+	p0 /= 2;
+	p0 *= 2;
+	p0 += 2;
+	p0 -= 2;
+	//p0.normalized();
+
+	auto& v = p0.slice<1, 2>();
+
+	Vector<float, 3> v0(1.0f, 2.0f, 3.0f);
+	v0 = -v0;
+
+	v0 == v0;
+	v0 != v0;
+
+	auto v1 = cross(v0, v0 + 1.0f);
+	auto v2 = dot(v0, v0 + 1.0f);
+	auto v3 = normalize(v0);
 }
 
 void TestAMP() restrict(amp) {
@@ -34,6 +60,30 @@ void TestAMP() restrict(amp) {
 	Vector<uint32_t, 2>::unitX();
 	Vector<uint32_t, 3>::unitX();
 	Vector<uint32_t, 4>::unitX();
+
+	auto& v = p0.slice<1, 2>();
+
+
+
+	auto pp0 = p0 / 2.0f;
+	auto pp1 = p0 * 2.0f;
+	auto pp2 = p0 + 2.0f;
+	auto pp3 = p0 - 2.0f;
+
+	p0 /= 2;
+	p0 *= 2;
+	p0 += 2;
+	p0 -= 2;
+
+	Vector<float, 3> v0(1.0f, 2.0f, 3.0f);
+	v0 = -v0;
+
+	v0 == v0;
+	v0 != v0;
+
+	auto v1 = cross(v0, v0 + 1.0f);
+	auto v2 = dot(v0, v0 + 1.0f);
+	auto v3 = normalize(v0);
 }
 
 int main() {
