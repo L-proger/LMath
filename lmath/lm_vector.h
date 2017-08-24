@@ -10,45 +10,6 @@
 
 namespace lm {
 
-/*#define LM_VECTOR_ARITHMETIC_OP_SCALAR(_Op, _Suffix) \
-	template<typename U> \
-	auto operator _Op (const U& divider) const _Suffix { \
-		Vector<DivideType<T, U>, N, Instructions> result; \
-		for (LmSize i = 0; i < N; ++i) { \
-				result[i] = this->data[i] _Op divider; \
-		} \
-		return result; \
-	} 
-
-#define LM_VECTOR_ARITHMETIC_OP_VECTOR(_Op, _Suffix) \
-	template<typename U> \
-		auto operator _Op (Vector<U, N, Instructions> divider) const _Suffix {\
-		Vector<DivideType<T, U>, N, Instructions> result; \
-		for (LmSize i = 0; i < N; ++i) {\
-				result[i] = this->data[i] _Op divider[i]; \
-		} \
-		return result; \
-	} \
-
-#define LM_VECTOR_ARITHMETIC_OP_SELF_SCALAR(_Op, _Suffix) \
-	template<typename U>\
-		auto operator _Op## = (const U& divider) _Suffix { \
-		for (LmSize i = 0; i < N; ++i) { \
-			this->data[i] _Op## = divider; \
-		} \
-		return *this; \
-	} 
-
-#define LM_VECTOR_ARITHMETIC_OP_SELF_VECTOR(_Op, _Suffix) \
-	template<typename U> \
-	auto operator _Op##= (Vector<U, N, Instructions> divider) _Suffix{ \
-		for (LmSize i = 0; i < N; ++i) { \
-			this->data[i] _Op##= divider[i]; \
-		} \
-		return *this; \
-	}
-	*/
-
 #define LM_VECTOR_ARITHMETIC_OP_SCALAR(_Op, _Suffix) \
 	template<typename T, LmSize N, InstructionSet Instructions, typename U> \
 	auto operator _Op (const Vector<T, N, Instructions>& l, const U& divider) _Suffix { \

@@ -25,7 +25,13 @@ void TestCPU() restrict(cpu) {
 
 	auto l_sse = f_sse.length();
 
+	float4_sse2 f_sse2;
+	f_sse2.set(0, 2);
+	f_sse2.set(1, 3);
+	f_sse2.set(2, 4);
+	f_sse2.set(3, 5);
 
+	auto f_sse3 = f_sse * f_sse2;
 
 
 	Vector<uint16_t, 3> p00(0U);
