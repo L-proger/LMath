@@ -12,26 +12,9 @@ typedef Vector<float, 4, lm::InstructionSet::SSE2> float4_sse2;
 
 void TestCPU() restrict(cpu) {
 
-	float4_sse2 f_sse;
-	f_sse.set(0, 0);
-	f_sse.set(1, 1);
-	f_sse.set(2, 2);
-	f_sse.set(3, 3);
+	
 
-	auto v0_sse = f_sse.get(0);
-	auto v1_sse = f_sse.get(1);
-	auto v2_sse = f_sse.get(2);
-	auto v3_sse = f_sse.get(3);
-
-	auto l_sse = f_sse.length();
-
-	float4_sse2 f_sse2;
-	f_sse2.set(0, 2);
-	f_sse2.set(1, 3);
-	f_sse2.set(2, 4);
-	f_sse2.set(3, 5);
-
-	auto f_sse3 = f_sse * f_sse2;
+	auto f_sse3 = float4_sse2(3) * float4_sse2(4);
 
 
 	Vector<uint16_t, 3> p00(0U);

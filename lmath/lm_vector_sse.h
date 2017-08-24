@@ -10,6 +10,14 @@ namespace lm {
 	template<>
 	struct VectorData<float, 4, InstructionSet::SSE2> {
 		
+		VectorData() {
+			sseValue = _mm_setzero_ps();
+		}
+
+		VectorData(float value) {
+			sseValue = _mm_set_ps1(value);
+		}
+
 		float get(LmSize id) const {
 			if (id == 0) {
 				return _mm_cvtss_f32(sseValue);
