@@ -7,7 +7,7 @@ namespace lm
 {
 	template<typename T, typename U>
 	static inline auto dot(const Plane<T>& plane, const Vector<U, 4>& value) {
-		return ((((plane.normal.x * value.x) + (plane.normal.y * value.y)) + (plane.normal.z * value.z)) + (plane.d * value.w));
+		return ((((plane.normal.x() * value.x()) + (plane.normal.y() * value.y())) + (plane.normal.z() * value.z())) + (plane.d * value.w()));
 	}
 
 	/*static inline float PlaneDot(const Plane& plane, const Vector4D& value) {

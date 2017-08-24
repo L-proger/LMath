@@ -1,11 +1,33 @@
 #include "../lmath/lmath.h"
+#include "../lmath/lm_vector_sse.h"
 #include <iostream>
 #include <amp.h>
+#include <intrin.h>
 
 using namespace concurrency;
 using namespace lm;
 
+
+typedef Vector<float, 4, lm::InstructionSet::SSE2> float4_sse2;
+
 void TestCPU() restrict(cpu) {
+
+	float4_sse2 f_sse;
+	f_sse.set(0, 0);
+	f_sse.set(1, 1);
+	f_sse.set(2, 2);
+	f_sse.set(3, 3);
+
+	auto v0_sse = f_sse.get(0);
+	auto v1_sse = f_sse.get(1);
+	auto v2_sse = f_sse.get(2);
+	auto v3_sse = f_sse.get(3);
+
+	auto l_sse = f_sse.length();
+
+
+
+
 	Vector<uint16_t, 3> p00(0U);
 	Vector<uint16_t, 3> p0;
 	Vector<uint16_t, 5> p1((uint16_t)0U, (uint16_t)1U, (uint16_t)2U, (uint16_t)3U, (uint16_t)4U);
@@ -19,6 +41,7 @@ void TestCPU() restrict(cpu) {
 	Vector<uint16_t, 4>::unitX();
 
 	auto p3x = p3.y();
+
 
 	p0.lengthSquared();
 //	p0.length();

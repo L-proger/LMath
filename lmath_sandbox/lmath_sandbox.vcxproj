@@ -23,7 +23,7 @@
     <ProjectGuid>{9CB05983-8BE8-44E9-9E0D-63EBC7F37592}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>lmath_sandbox</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

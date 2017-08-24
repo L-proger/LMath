@@ -105,7 +105,7 @@ namespace lm {
 
 	template<typename T, typename U = T>
 	static inline Matrix<U, 4, 4> matrix4x4Scale(const Vector<T, 3>& scale) {
-		return matrix4x4Scale<T, U>(scale.x, scale.y, scale.z);
+		return matrix4x4Scale<T, U>(scale.x(), scale.y(), scale.z());
 	}
 
 	template<typename T, typename U = T>
@@ -122,7 +122,7 @@ namespace lm {
 
 	template<typename T, typename U = T>
 	static inline Matrix<U, 4, 4> matrix4x4Translation(const Vector<T, 3>& position) {
-		return matrix4x4Translation<T, U>(position.x, position.y, position.z);
+		return matrix4x4Translation<T, U>(position.x(), position.y(), position.z());
 	}
 }
 #endif // lm_common_intrin_h__

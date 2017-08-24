@@ -23,6 +23,18 @@ namespace lm {
 				axis[2] * s, c);
 		}
 
+		T& x() { return data[0]; }
+		const T& x() const { return data[0]; }
+
+		T& y() { return data[1]; }
+		const T& y() const { return data[1]; }
+
+		T& z() { return data[2]; }
+		const T& z() const { return data[2]; }
+
+		T& w() { return data[3]; }
+		const T& w() const { return data[3]; }
+
 		static Quaternion identity() {
 			auto zero = DefaultValues<T>::zero();
 			auto one = DefaultValues<T>::one();
