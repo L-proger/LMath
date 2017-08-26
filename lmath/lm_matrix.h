@@ -25,7 +25,7 @@ namespace lm {
 		auto getColumn(LmSize id) const RESTRICT(cpu, amp) {
 			Vector<T, M> result;
 			for (LmSize i = 0; i < M; ++i) {
-				result[i] = data[i][id];
+				result[i] = this->get(i)[id];
 			}
 			return result;
 		}

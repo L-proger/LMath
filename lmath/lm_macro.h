@@ -11,5 +11,4 @@
 
 #define GEN_METHOD_PARAMS(_Method, ...) UNPACK(_Method(__VA_ARGS__, EMPTY_SUFFIX)) UNPACK( ENABLE_IF_AMP( _Method(__VA_ARGS__, restrict(amp)) ))
 
-
 #endif // lm_macro_h__

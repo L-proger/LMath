@@ -70,18 +70,18 @@ namespace lm {
 
 		bool operator==(const Quaternion& a) const{
 			return
-				data[0] == d.data[0] &&
-				data[1] == d.data[1] &&
-				data[2] == d.data[2] &&
-				data[3] == d.data[3];
+				data[0] == a.data[0] &&
+				data[1] == a.data[1] &&
+				data[2] == a.data[2] &&
+				data[3] == a.data[3];
 		}
 
 		bool operator!=(const Quaternion& a) const {
 			return
-				data[0] != d.data[0] ||
-				data[1] != d.data[1] ||
-				data[2] != d.data[2] ||
-				data[3] != d.data[3];
+				data[0] != a.data[0] ||
+				data[1] != a.data[1] ||
+				data[2] != a.data[2] ||
+				data[3] != a.data[3];
 		}
 
 
@@ -142,7 +142,7 @@ namespace lm {
 				a[3] * sp + b[3] * sq);
 		}
 		else {
-			auto halfpi = static_cast<T>(lm:pi_d / DefaultValues<T>::two()); //TODO: cleanup types mess
+			auto halfpi = static_cast<T>(lm::pi_d / DefaultValues<T>::two()); //TODO: cleanup types mess
 			auto sp = static_cast<T>(lm::sin((DefaultValues<T>::one() - x) * halfpi));
 			auto sq = static_cast<T>(lm::sin(x * halfpi));
 			return Quaternion<T>(

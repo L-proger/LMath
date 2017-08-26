@@ -90,6 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);LM_AMP_SUPPORTED</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,6 +104,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);LM_AMP_SUPPORTED</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +120,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);LM_AMP_SUPPORTED</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +138,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);LM_AMP_SUPPORTED</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

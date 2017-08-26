@@ -6,6 +6,7 @@
 #include "lm_types.h"
 #include "lm_constants.h"
 #include "lm_macro.h"
+#include "lm_traits.h"
 #include <cmath>
 
 namespace lm {
@@ -15,7 +16,7 @@ namespace lm {
 	auto operator _Op (const Vector<T, N, Instructions>& l, const U& divider) _Suffix { \
 		Vector<DivideType<T, U>, N, Instructions> result; \
 		for (LmSize i = 0; i < N; ++i) { \
-				result[i] = l.data[i] _Op divider; \
+				result.set(i, l.get(i) _Op divider); \
 		} \
 		return result; \
 	} 
@@ -25,16 +26,16 @@ namespace lm {
 		auto operator _Op (const Vector<T, N, Instructions>& l, Vector<U, N, Instructions> divider) _Suffix {\
 		Vector<DivideType<T, U>, N, Instructions> result; \
 		for (LmSize i = 0; i < N; ++i) {\
-				result[i] = l.data[i] _Op divider[i]; \
+				result.set(i, l.get(i) _Op divider.get(i)); \
 		} \
 		return result; \
 	} \
 
 #define LM_VECTOR_ARITHMETIC_OP_SELF_SCALAR(_Op, _Suffix) \
 	template<typename T, LmSize N, InstructionSet Instructions, typename U>\
-		auto operator _Op## = (Vector<T, N, Instructions>& l, const U& divider) _Suffix { \
+	auto operator _Op## = (Vector<T, N, Instructions>& l, const U& divider) _Suffix { \
 		for (LmSize i = 0; i < N; ++i) { \
-			l.data[i] _Op## = divider; \
+			l.set(i, l.get(i) _Op divider); \
 		} \
 		return l; \
 	} 
@@ -43,7 +44,7 @@ namespace lm {
 	template<typename T, LmSize N, InstructionSet Instructions, typename U> \
 	auto operator _Op##= (Vector<T, N, Instructions>& l, Vector<U, N, Instructions> divider) _Suffix{ \
 		for (LmSize i = 0; i < N; ++i) { \
-			l.data[i] _Op##= divider[i]; \
+			l.set(i, l.get(i) _Op divider.get(i)); \
 		} \
 		return l; \
 	}
@@ -60,22 +61,22 @@ namespace lm {
 		template<typename T UNPACK _TemplateParams> \
 		struct _Name { \
 			template<typename = void> \
-			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(cpu) { return std::##_Name##(v UNPACK _Params); } \
-			ENABLE_IF_AMP(template<typename = void>  static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math::##_Name##(v UNPACK _Params); }) \
+			static auto exec(const T& v UNPACK _ExecParams) RESTRICT(cpu) { return std:: _Name (v UNPACK _Params); } \
+			ENABLE_IF_AMP(template<typename = void>  static auto exec(const T& v UNPACK _ExecParams) RESTRICT(amp) { return concurrency::precise_math:: _Name (v UNPACK _Params); }) \
 		}; \
 		template<typename T, LmSize N UNPACK _TemplateParams> \
 		struct _Name <Vector<T, N> UNPACK _TemplateParamsNames> { \
 			template<typename = void> \
 			static auto exec(const Vector<T, N>& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
-				Vector<decltype(##_Name##<T UNPACK _TemplateParamsNames>::exec(*static_cast<T*>(nullptr) UNPACK _Params)), N> result; \
-				for (LmSize i = 0; i < N; ++i) { result[i] = impl::_Name##<T UNPACK _TemplateParamsNames>::exec(v[i] UNPACK _Params); } \
+				Vector<decltype( _Name <T UNPACK _TemplateParamsNames>::exec(*static_cast<T*>(nullptr) UNPACK _Params)), N> result; \
+				for (LmSize i = 0; i < N; ++i) { result[i] = impl:: _Name <T UNPACK _TemplateParamsNames>::exec(v[i] UNPACK _Params); } \
 				return result; \
 			} \
 		}; \
 	} \
 	template<typename T UNPACK _TemplateParams> \
 	auto _Name(const T& v UNPACK _ExecParams) RESTRICT(cpu, amp) { \
-		return impl::##_Name##<T UNPACK _TemplateParamsNames>::exec(v UNPACK _Params); \
+		return impl:: _Name <T UNPACK _TemplateParamsNames>::exec(v UNPACK _Params); \
 	}
 
 #define MATH_VECTOR_FUNC_ONE_PARAM(_Name)  MATH_VECTOR_FUNC(_Name, (, typename TParam), (, TParam), (, TParam x), (, x))
@@ -94,7 +95,11 @@ namespace lm {
 
 #define VECTOR_DATA_GET(_Suffix) \
 		template<typename = void> \
-		T get(LmSize id)  const  _Suffix{ \
+		T& get(LmSize id)   _Suffix{ \
+			return data[id]; \
+		} \
+		template<typename = void> \
+		const T& get(LmSize id) const  _Suffix{ \
 			return data[id]; \
 		}
 		GEN_METHOD(VECTOR_DATA_GET)
@@ -108,64 +113,66 @@ namespace lm {
 
 		constexpr VectorData() {}
 
+#ifdef LM_AMP_SUPPORTED
 		template<typename = void>
 		constexpr VectorData() restrict(amp) {}
+#endif
 
 #define CTOR_VA(_Suffix) \
-		template<typename ... Args, typename = std::enable_if_t<(sizeof...(Args) == N) && (N > 4)>> \
+		template<typename ... Args, LmSize M = N, typename = std::enable_if_t<(sizeof...(Args) == M) && (M > 4)>> \
 		constexpr VectorData(const Args& ... rest) _Suffix : data{ rest... } {}
 		GEN_METHOD(CTOR_VA)
 
 			//Vector2 constructors
 #define CTOR_V2(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 2>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 2>> \
 		constexpr VectorData(const TA& a, const TA& b) _Suffix : data{ a, b } {}
 			GEN_METHOD(CTOR_V2)
 
 			//Vector3 constructors
 #define CTOR_V3_0(_Suffix) \
-		template<typename TA, typename = typename std::enable_if<N == 3, T>::type>\
+		template<typename TA, LmSize M = N,typename = typename std::enable_if<M == 3, T>::type>\
 		VectorData(const TA& a, const TA& b, const TA& c) _Suffix : data{ a, b, c } {}
 			GEN_METHOD(CTOR_V3_0)
 
 #define CTOR_V3_1_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 3>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 3>> \
 		constexpr VectorData(const VectorData<TA, 2>& a, const TA& b) _Suffix : data{ a.data[0], a.data[1], b } {}
 			GEN_METHOD(CTOR_V3_1_BASE)
 
 #define CTOR_V3_2_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 3>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 3>> \
 		constexpr VectorData(const TA& a, const VectorData<TA, 2>& b) _Suffix : data{ a, b.data[0], b.data[1] } {}
 			GEN_METHOD(CTOR_V3_2_BASE)
 
 			//Vector4 constructors
 #define CTOR_V4_0_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr VectorData(const TA& a, const TA& b, const TA& c, const TA& d) _Suffix : data{ a, b, c, d } {}
 			GEN_METHOD(CTOR_V4_0_BASE)
 
 #define CTOR_V4_1_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr VectorData(const TA& a, const TA& b, const VectorData<T, 2>& c) _Suffix : data{ a, b, c.data[0], c.data[1] } {}
 			GEN_METHOD(CTOR_V4_1_BASE)
 
 #define CTOR_V4_2_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr VectorData(const VectorData<TA, 2>& a, const TA& b, const TA& c) _Suffix  : data{ a.data[0], a.data[1], b, c } {}
 			GEN_METHOD(CTOR_V4_2_BASE)
 
 #define CTOR_V4_3_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr VectorData(const VectorData<TA, 2>& a, const VectorData<TA, 2>& b) _Suffix  : data{ a.data[0], a.data[1], b.data[0], b.data[1] } {}
 			GEN_METHOD(CTOR_V4_3_BASE)
 
 #define CTOR_V4_4_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr VectorData(const TA& a, const VectorData<TA, 3>& b) _Suffix : data{ a, b.data[0], b.data[1], b.data[2] } {}
 			GEN_METHOD(CTOR_V4_4_BASE)
 
 #define CTOR_V4_5_BASE(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr VectorData(const VectorData<TA, 3>& a, const TA& b) _Suffix  : data{ a.data[0], a.data[1], a.data[2], b } {}
 			GEN_METHOD(CTOR_V4_5_BASE)
 
@@ -187,46 +194,48 @@ namespace lm {
 
 		constexpr Vector() {}
 
+#ifdef LM_AMP_SUPPORTED
 		template<typename = void>
 		constexpr Vector() restrict(amp) {}
+#endif
 
 		typedef VectorData<T, N, Instructions> Base;
 
 		using Base::Base;
 
 #define CTOR_V3_1(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 3>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 3>> \
 		constexpr Vector(const Vector<TA, 2>& a, const TA& b) _Suffix : Base{ (const VectorData<TA, 2>&)a, b } {}
 		GEN_METHOD(CTOR_V3_1)
 
 #define CTOR_V3_2(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 3>> \
+		template<typename TA, LmSize M = N, typename = std::enable_if_t<M == 3>> \
 		constexpr Vector(const TA& a, const Vector<TA, 2>& b) _Suffix : Base{ a, (const VectorData<TA, 2>&)b} {}
 		GEN_METHOD(CTOR_V3_2)
 
 		//Vector4 constructors
 #define CTOR_V4_1(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr Vector(const TA& a, const TA& b, const Vector<T, 2>& c) _Suffix : Base {a, b, (const VectorData<T, 2>&)c} {}
 		GEN_METHOD(CTOR_V4_1)
 
 #define CTOR_V4_2(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr Vector(const Vector<TA, 2>& a, const TA& b, const TA& c) _Suffix  : Base{(const VectorData<TA, 2>&)a, b, c}{}
 		GEN_METHOD(CTOR_V4_2)
 
 #define CTOR_V4_3(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N, typename = std::enable_if_t<M == 4>> \
 		constexpr Vector(const Vector<TA, 2>& a, const Vector<TA, 2>& b) _Suffix  : Base { (const VectorData<TA, 2>&)a, (const VectorData<TA, 2>&)b} {}
 		GEN_METHOD(CTOR_V4_3)
 
 #define CTOR_V4_4(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr Vector(const TA& a, const Vector<TA, 3>& b) _Suffix : Base {a, (const VectorData<TA, 3>&)b}  {}
 		GEN_METHOD(CTOR_V4_4)
 
 #define CTOR_V4_5(_Suffix) \
-		template<typename TA, typename = std::enable_if_t<N == 4>> \
+		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
 		constexpr Vector(const Vector<TA, 3>& a, const TA& b) _Suffix  : Base{ (const VectorData<TA, 3>&)a, b} {}
 		GEN_METHOD(CTOR_V4_5)
 
@@ -310,13 +319,13 @@ namespace lm {
 
 #define VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, _Modifier, _Restrict) \
 			template<LmSize S = Size, typename = std::enable_if_t<(S == Size) && (S > _Index)>> \
-			_Modifier auto& _Name () _Modifier _Restrict { return data[_Index]; }
+			_Modifier auto& _Name () _Modifier _Restrict { return this->get(_Index); }
 
 #define VECTOR_ITEM_ACCESSOR(_Name, _Index) \
 			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, EMPTY_SUFFIX, EMPTY_SUFFIX) \
 			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, const, EMPTY_SUFFIX) \
-			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, EMPTY_SUFFIX, restrict(amp)) \
-			VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, const, restrict(amp))
+			ENABLE_IF_AMP(VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, EMPTY_SUFFIX, restrict(amp)) ) \
+			ENABLE_IF_AMP(VECTOR_ITEM_ACCESSOR_BASE(_Name, _Index, const, restrict(amp)) )
 
 		//accessors
 		VECTOR_ITEM_ACCESSOR(x, 0);
@@ -372,7 +381,7 @@ namespace lm {
 #define OP_INDEX(_Prefix, _Suffix) \
 		template<typename = void> \
 		_Prefix T& operator [] (LmSize id) _Suffix { \
-			return data[id]; \
+			return this->get(id); \
 		}
 		GEN_METHOD2(OP_INDEX)
 
@@ -395,9 +404,9 @@ namespace lm {
 #define OP_NEG(_Suffix) \
 		template<typename = void> \
 		auto operator-() const _Suffix { \
-			Vector<typename std::decay<decltype(-data[0])>::type, Size> result; \
+			Vector<typename std::decay<decltype(-this->x())>::type, Size> result; \
 			for (LmSize i = 0; i < Size; ++i) { \
-				result[i] = -data[i]; \
+				result[i] = -this->get(i); \
 			} \
 			return result; \
 		}
@@ -408,7 +417,7 @@ namespace lm {
 		template<typename T2> \
 		bool operator==(const Vector<T2, Size>& right) const _Suffix { \
 			for (LmSize i = 0; i < Size; ++i) { \
-				if (data[i] != right[i]) { \
+				if (this->get(i) != right[i]) { \
 					return false; \
 				} \
 			} \
@@ -420,7 +429,7 @@ namespace lm {
 		template<typename T2> \
 		bool operator!=(const Vector<T2, Size>& right) const _Suffix { \
 			for (LmSize i = 0; i < Size; ++i) { \
-				if (data[i] != right[i]) { \
+				if (this->get(i) != right[i]) { \
 					return true; \
 				} \
 			} \
@@ -431,7 +440,7 @@ namespace lm {
 #define OP_CAST_RAW(_Prefix, _Suffix) \
 		template<typename = void> \
 		explicit operator _Prefix T*() _Suffix { \
-			return Size == 0 ? nullptr : &data[0]; \
+			return Size == 0 ? nullptr : &this->get(0); \
 		}
 		GEN_METHOD2(OP_CAST_RAW)
 
@@ -657,7 +666,7 @@ namespace lm {
 template<typename> \
 	bool Vector<T, N, Instructions>::equals(const Vector<T, N, Instructions>& other, T tolerance) const _Suffix { \
 		for (LmSize i = 0; i < N; ++i) { \
-			if (lm::abs(get(i) - other.get(i)) >= tolerance) { \
+			if (lm::abs(this->get(i) - other.get(i)) >= tolerance) { \
 				return false; \
 			} \
 		} \

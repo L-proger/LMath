@@ -5,7 +5,7 @@
 #include "lm_matrix_traits.h"
 
 namespace lm{
-	namespace common_traits {
+	/*namespace common_traits {
 		template<typename T, bool Valid = common_traits::is_lm_type<T>::value>
 		struct field_type {
 			typedef typename T::element_type type;
@@ -15,9 +15,9 @@ namespace lm{
 		struct field_type<T, false> {
 			typedef T type;
 		};
-	}
+	}*/
 
-	template<typename T, bool IsScalar = !common_traits::is_lm_type<T>::value>
+	/*template<typename T, bool IsScalar = !common_traits::is_lm_type<T>::value>
 	struct transform_copy_helper {
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op)RESTRICT(cpu) {
@@ -37,10 +37,10 @@ namespace lm{
 			return result;
 		}
 #endif
-	};
+	};*/
+	
 
-
-	template<typename T>
+	/*template<typename T>
 	struct transform_copy_helper<T, true> {
 		template<typename OpUnary>
 		static auto execute(const T& v, OpUnary op) RESTRICT(cpu) {
@@ -52,7 +52,7 @@ namespace lm{
 			return op(v);
 		}
 #endif
-	};
+	};*/
 }
 
 #endif // lm_common_h__

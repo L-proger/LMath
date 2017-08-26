@@ -10,7 +10,7 @@ namespace lm{
 	template<typename T>
 	struct MatrixSize {
 		static constexpr size_t rows = VectorSize<T>::value;
-		static constexpr size_t columns = VectorSize<T::ElementType>::value;
+		static constexpr size_t columns = VectorSize<typename T::ElementType>::value;
 		static constexpr auto value = lm::Vector<lm::LmSize, 2>(rows, columns);
 	};
 
