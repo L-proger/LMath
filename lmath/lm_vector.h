@@ -83,11 +83,12 @@ namespace lm {
 
 
 	enum class InstructionSet {
-		Default,
-		SSE2
+		Generic,
+		SSE,
+		AVX
 	};
 
-	template<typename T, LmSize N, InstructionSet Instructions = InstructionSet::Default>
+	template<typename T, LmSize N, InstructionSet Instructions = InstructionSet::Generic>
 	struct VectorData {
 		T data[N];
 
@@ -178,7 +179,7 @@ namespace lm {
 		GEN_METHOD(CTOR_S)
 	};
 
-	template<typename T, LmSize N, InstructionSet Instructions = InstructionSet::Default>
+	template<typename T, LmSize N, InstructionSet Instructions = InstructionSet::Generic>
 	struct Vector : public VectorData<T, N, Instructions> {
 	public:
 		static constexpr LmSize Size = N;
@@ -656,7 +657,7 @@ namespace lm {
 template<typename> \
 	bool Vector<T, N, Instructions>::equals(const Vector<T, N, Instructions>& other, T tolerance) const _Suffix { \
 		for (LmSize i = 0; i < N; ++i) { \
-			if (lm::abs(data[i] - other[i]) >= tolerance) { \
+			if (lm::abs(get(i) - other.get(i)) >= tolerance) { \
 				return false; \
 			} \
 		} \

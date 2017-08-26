@@ -166,6 +166,7 @@
     <ClInclude Include="lm_matrix.h" />
     <ClInclude Include="lm_matrix_traits.h" />
     <ClInclude Include="lm_vector.h" />
+    <ClInclude Include="lm_vector_avx.h" />
     <ClInclude Include="lm_vector_sse.h" />
     <ClInclude Include="lm_vector_traits.h" />
   </ItemGroup>

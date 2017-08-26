@@ -1,5 +1,6 @@
 #include "../lmath/lmath.h"
 #include "../lmath/lm_vector_sse.h"
+#include "../lmath/lm_vector_avx.h"
 #include <iostream>
 #include <amp.h>
 #include <intrin.h>
@@ -7,15 +8,31 @@
 using namespace concurrency;
 using namespace lm;
 
-
-typedef Vector<float, 4, lm::InstructionSet::SSE2> float4_sse2;
-
 void TestCPU() restrict(cpu) {
 
-	
+	double4_avx d0(1.0, 0, 1, 4);
+	auto dm0 = d0.get<0>();
+	auto dm1 = d0.get<1>();
+	auto dm2 = d0.get<2>();
+	auto dm3 = d0.get<3>();
 
-	auto f_sse3 = float4_sse2(3) * float4_sse2(4);
+	double dt = lm::dot(d0, d0);
 
+	auto pp = lm::min(double4_avx(1, 2, 3, 4), double4_avx(4, 3, 2, 1));
+	auto ppp0 = pp.get<0>();
+	auto ppp1 = pp.get<1>();
+	auto ppp2 = pp.get<2>();
+	auto ppp3 = pp.get<3>();
+
+	auto pplen = pp.length();
+
+	auto f_sse3 = float4_sse(3) * float4_sse(4);
+
+	auto l = float4_sse(0, 1, 2, 3);
+
+	auto ls = lm::sum(l);
+
+	auto lx = l.get<0>();
 
 	Vector<uint16_t, 3> p00(0U);
 	Vector<uint16_t, 3> p0;

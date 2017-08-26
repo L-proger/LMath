@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../lmath/lmath.h"
+#include "../lmath/lm_vector_sse.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace lm;
@@ -8,24 +9,91 @@ using namespace lm;
 namespace lmath_test {
 	TEST_CLASS(lm_vector_test_class) {
 public:
-	TEST_METHOD(lm_vector_test_min) {
+
+	TEST_METHOD(lm_vector_test_sse_constructors_and_getters) {
+		lm::float4_sse v0;
+		Assert::AreEqual(0.0f, v0.get<0>());
+		Assert::AreEqual(0.0f, v0.get<1>());
+		Assert::AreEqual(0.0f, v0.get<2>());
+		Assert::AreEqual(0.0f, v0.get<3>());
+
+		lm::float4_sse v1(5.0f);
+		Assert::AreEqual(5.0f, v1.get<0>(), L"0");
+		Assert::AreEqual(5.0f, v1.get<1>(), L"1");
+		Assert::AreEqual(5.0f, v1.get<2>(), L"2");
+		Assert::AreEqual(5.0f, v1.get<3>(), L"3");
+
+		lm::float4_sse v2(2,3,4,5);
+		Assert::AreEqual(2.0f, v2.get<0>(), L"0");
+		Assert::AreEqual(3.0f, v2.get<1>(), L"1");
+		Assert::AreEqual(4.0f, v2.get<2>(), L"2");
+		Assert::AreEqual(5.0f, v2.get<3>(), L"3");
+
+		Assert::AreEqual(v2.get(0), v2.get<0>(), L"0");
+		Assert::AreEqual(v2.get(1), v2.get<1>(), L"1");
+		Assert::AreEqual(v2.get(2), v2.get<2>(), L"2");
+		Assert::AreEqual(v2.get(3), v2.get<3>(), L"3");
+
+
+		auto m1 = v2 * v2;
+		Assert::AreEqual(m1.get<0>(), 4.0f, L"0");
+		Assert::AreEqual(m1.get<1>(), 9.0f, L"1");
+		Assert::AreEqual(m1.get<2>(), 16.0f, L"2");
+		Assert::AreEqual(m1.get<3>(), 25.0f, L"3");
+
+		v2 *= v2;
+		Assert::AreEqual(v2.get<0>(), 4.0f, L"0");
+		Assert::AreEqual(v2.get<1>(), 9.0f, L"1");
+		Assert::AreEqual(v2.get<2>(), 16.0f, L"2");
+		Assert::AreEqual(v2.get<3>(), 25.0f, L"3");
+
+		auto d1 = lm::float4_sse{ 2,4,6,8 };
+		auto d2 = d1 / lm::float4_sse{ 2,2,3,4 };
+
+		Assert::AreEqual(d2.get<0>(), 1.0f, L"0");
+		Assert::AreEqual(d2.get<1>(), 2.0f, L"1");
+		Assert::AreEqual(d2.get<2>(), 2.0f, L"2");
+		Assert::AreEqual(d2.get<3>(), 2.0f, L"3");
+
+		d1 /= lm::float4_sse{ 2,2,3,4 };
+		Assert::AreEqual(d1.get<0>(), 1.0f, L"0");
+		Assert::AreEqual(d1.get<1>(), 2.0f, L"1");
+		Assert::AreEqual(d1.get<2>(), 2.0f, L"2");
+		Assert::AreEqual(d1.get<3>(), 2.0f, L"3");
+
+	}
+
+	template<typename V>
+	void testMin() {
 		Assert::IsTrue(lm::min(1.0f, 2.0f) == 1.0f);
 		Assert::IsTrue(lm::min(2.0f, 1.0f) == 1.0f);
 
-		float3 v1(1.0f, 2.0f, 3.0f);
-		float3 v2(-5.0f, 0.0f, 5.0f);
+		V v1(1.0f, 2.0f, 3.0f, 4.0f);
+		V v2(-5.0f, 0.0f, 5.0f, 7.0f);
 
 		const float epsilon = 0.001f;
-		Assert::IsTrue(lm::min(v1, v2).equals(float3(-5.0f, 0.0f, 3.0f), epsilon));
-		Assert::IsTrue(lm::min(v2, v1).equals(float3(-5.0f, 0.0f, 3.0f), epsilon));
-		Assert::IsTrue(lm::max(v1, v2).equals(float3(1.0f, 2.0f, 5.0f), epsilon));
-		Assert::IsTrue(lm::max(v2, v1).equals(float3(1.0f, 2.0f, 5.0f), epsilon));
+		Assert::IsTrue(lm::min(v1, v2).equals(V(-5.0f, 0.0f, 3.0f, 4.0f), epsilon));
+		Assert::IsTrue(lm::min(v2, v1).equals(V(-5.0f, 0.0f, 3.0f, 4.0f), epsilon));
+		Assert::IsTrue(lm::max(v1, v2).equals(V(1.0f, 2.0f, 5.0f, 7.0f), epsilon));
+		Assert::IsTrue(lm::max(v2, v1).equals(V(1.0f, 2.0f, 5.0f, 7.0f), epsilon));
 
 		Assert::AreEqual(1.0f, lm::min(v1), epsilon);
 		Assert::AreEqual(-5.0f, lm::min(v2), epsilon);
 
-		Assert::AreEqual(3.0f, lm::max(v1), epsilon);
-		Assert::AreEqual(5.0f, lm::max(v2), epsilon);
+		Assert::AreEqual(4.0f, lm::max(v1), epsilon);
+		Assert::AreEqual(7.0f, lm::max(v2), epsilon);
+	}
+
+	TEST_METHOD(lm_vector_test_min_sse) {
+		testMin<float4_sse>();
+	}
+	TEST_METHOD(lm_vector_test_dot_sse) {
+		Assert::AreEqual(0.0f, dot(float4_sse(), float4_sse()));
+		Assert::AreEqual(1.0f, dot(float4_sse(1,1,1,1), float4_sse(1,0,0,0)));
+	}
+
+	TEST_METHOD(lm_vector_test_min) {
+		testMin<float4>();
 	}
 	TEST_METHOD(lm_vector_test_operators) {
 		float3 v1(0.0f);
