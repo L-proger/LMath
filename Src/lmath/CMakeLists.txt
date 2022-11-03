@@ -1,0 +1,22 @@
+target_sources(${PROJECT_NAME} 
+INTERFACE
+    lmath.h
+    lm_common.h
+    lm_common_intrin.h
+    lm_constants.h
+    lm_half.h
+    lm_macro.h
+    lm_matrix.h
+    lm_matrix_traits.h
+    lm_plane.h
+    lm_plane_intrin.h
+    lm_quaternion.h
+    lm_quaternion_intrin.h
+    lm_stdio.h
+    lm_traits.h
+    lm_types.h
+    lm_vector.h
+    lm_vector_avx.h
+    lm_vector_sse.h
+    lm_vector_traits.h
+)
