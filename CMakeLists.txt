@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(lmath)
+project(LMath)
 add_library(${PROJECT_NAME} INTERFACE)
-add_subdirectory(Src/lmath)
+add_subdirectory(Src/LMath)
 target_include_directories(${PROJECT_NAME} INTERFACE ./Src)
