@@ -46,7 +46,7 @@ namespace lm {
 		auto yScale = one / (lm::tan(fov / two));
 		return Matrix<T, 4, 4>(
 			Vector<T, 4>(yScale / aspect, zero, zero, zero),
-			Vector<T, 4>(zero, yScale, zero, zero),
+			Vector<T, 4>(zero, -yScale, zero, zero),
 			Vector<T, 4>(zero, zero, far_clip / (far_clip - near_clip), (-near_clip * far_clip) / (far_clip - near_clip)),
 			Vector<T, 4>(zero, zero, one, zero));
 	}

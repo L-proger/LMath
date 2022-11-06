@@ -12,8 +12,8 @@ namespace lm {
 
 		constexpr Quaternion(T x, T y, T z, T w) : data{ x,y,z,w } {}
 
-		static Quaternion angleAxis(T angle, const Vector<T, 3>& axis) {
-			auto theta = angle / DefaultValues<T>::two();
+		static Quaternion angleAxis(T angleRadians, const Vector<T, 3>& axis) {
+			auto theta = angleRadians / DefaultValues<T>::two();
 			auto s = lm::sin(theta);
 			auto c = lm::cos(theta);
 
