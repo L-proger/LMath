@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../lmath/lmath.h"
-#include "../lmath/lm_vector_sse.h"
+#include "../Src/lmath/lmath.h"
+#include "../Src/lmath/lm_vector_sse.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace lm;

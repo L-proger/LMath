@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../lmath/lmath.h"
+#include "../Src/lmath/lmath.h"
 #include <limits>
 #include <cmath>
 

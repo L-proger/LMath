@@ -38,7 +38,7 @@ namespace lm {
 			else if constexpr(Index == 2) {
 				return _mm_cvtss_f32(_mm_shuffle_ps(sseValue, sseValue, _MM_SHUFFLE(2, 2, 2, 2)));
 			}
-			else constexpr {
+			else  {
 				return _mm_cvtss_f32(_mm_shuffle_ps(sseValue, sseValue, _MM_SHUFFLE(3, 3, 3, 3)));
 			}
 		}
