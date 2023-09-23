@@ -1,5 +1,4 @@
-#ifndef lm_h__
-#define lm_h__
+#pragma once
 
 #include "lm_vector.h"
 #include "lm_matrix.h"
@@ -10,6 +9,3 @@
 #include "lm_quaternion_intrin.h"
 #include "lm_stdio.h"
 #include "lm_half.h"
-
-
-#endif // lm_h__

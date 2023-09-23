@@ -471,6 +471,8 @@ namespace lm {
 		return v.normalized();
 	}
 
+	
+
 	template<typename TA, typename TB, LmSize N, typename TC>
 	auto lerp(const Vector<TA, N>& a, const Vector<TB, N>& b, TC c)RESTRICT(cpu, amp) {
 		return a * (DefaultValues<TC>::one() - c) + b * c;
@@ -637,6 +639,18 @@ namespace lm {
 	auto clamp(const T& a, const TRange& minValue, const TRange& maxValue) RESTRICT(cpu, amp) {
 		return lm::min(lm::max(a, minValue), maxValue);
 	}
+
+	template<typename T>
+	auto saturate(const T& a) RESTRICT(cpu, amp) {
+		T result;
+		for (LmSize i = 0; i < T::Size; ++i) { 
+			result[i] = lm::min(lm::max(a[i], static_cast<typename T::ElementType>(0)), static_cast<typename T::ElementType>(1));
+		
+		}
+		return result;
+	}
+
+
 
 	namespace impl {
 		template<typename T>
