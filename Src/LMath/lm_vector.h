@@ -132,7 +132,7 @@ namespace lm {
 			//Vector3 constructors
 #define CTOR_V3_0(_Suffix) \
 		template<typename TA, LmSize M = N,typename = typename std::enable_if<M == 3, T>::type>\
-		VectorData(const TA& a, const TA& b, const TA& c) _Suffix : data{ static_cast<T>(a), static_cast<T>(b), static_cast<T>(c) } {}
+		constexpr VectorData(const TA& a, const TA& b, const TA& c) _Suffix : data{ static_cast<T>(a), static_cast<T>(b), static_cast<T>(c) } {}
 			GEN_METHOD(CTOR_V3_0)
 
 #define CTOR_V3_1_BASE(_Suffix) \
