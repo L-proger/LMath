@@ -132,7 +132,7 @@ namespace lm {
 			//Vector3 constructors
 #define CTOR_V3_0(_Suffix) \
 		template<typename TA, LmSize M = N,typename = typename std::enable_if<M == 3, T>::type>\
-		VectorData(const TA& a, const TA& b, const TA& c) _Suffix : data{ a, b, c } {}
+		VectorData(const TA& a, const TA& b, const TA& c) _Suffix : data{ static_cast<T>(a), static_cast<T>(b), static_cast<T>(c) } {}
 			GEN_METHOD(CTOR_V3_0)
 
 #define CTOR_V3_1_BASE(_Suffix) \
@@ -148,7 +148,7 @@ namespace lm {
 			//Vector4 constructors
 #define CTOR_V4_0_BASE(_Suffix) \
 		template<typename TA, LmSize M = N,typename = std::enable_if_t<M == 4>> \
-		constexpr VectorData(const TA& a, const TA& b, const TA& c, const TA& d) _Suffix : data{ a, b, c, d } {}
+		constexpr VectorData(const TA& a, const TA& b, const TA& c, const TA& d) _Suffix : data{ static_cast<T>(a), static_cast<T>(b), static_cast<T>(c), static_cast<T>(d) } {}
 			GEN_METHOD(CTOR_V4_0_BASE)
 
 #define CTOR_V4_1_BASE(_Suffix) \

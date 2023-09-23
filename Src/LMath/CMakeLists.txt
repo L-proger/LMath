@@ -1,5 +1,5 @@
-target_sources(${PROJECT_NAME} 
-PUBLIC
+target_sources(LMath
+INTERFACE
     lmath.h
     lm_common.h
     lm_common_intrin.h
